@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ưu Đãi Đặc Biệt - Bánh Mì Ông Kòi</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap');
+        :root {
+            --primary-color: #fc6806;
+            --dark-color: #A15200;
+            --background-color: #FFF7ED;
+            --text-color: #4B5563;
+            --white-color: #FFFFFF;
+            --error-color: #DC2626;
+            --hot-deal-color: #ff4d4d;
+            --radius: 20px;
+            --shadow: 0 10px 30px -5px rgba(252, 104, 6, 0.15);
+        }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .card {
+            background-color: var(--white-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px 35px 35px 35px;
+            position: relative;
+            margin-top: 60px;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .card > * {
+            animation: slideUp 0.7s 0.2s cubic-bezier(0.25, 1, 0.5, 1) both;
+        }
+        .card > *:nth-child(2) { animation-delay: 0.3s; }
+        .card > *:nth-child(3) { animation-delay: 0.4s; }
+        .card > *:nth-child(4) { animation-delay: 0.5s; }
+        .card > *:nth-child(5) { animation-delay: 0.6s; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: -75px auto 15px;
+            display: block;
+            position: relative;
+            z-index: 2;
+            border: 5px solid var(--white-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+        
+        .promo-image-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        .promo-image {
+            width: 100%;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: block;
+        }
+        .promo-badge {
+            position: absolute;
+            top: 20px;
+            right: -8px;
+            background: linear-gradient(45deg, var(--hot-deal-color), #ff8c00);
+            color: white;
+            padding: 8px 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 5px;
+            transform: rotate(15deg);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            animation: wobble 2.5s infinite;
+        }
+        @keyframes wobble {
+            0%, 100% { transform: rotate(15deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(20deg); }
+        }
+
+        .offer-title {
+            margin-bottom: 25px;
+        }
+        .main-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .price {
+            font-size: 2.8rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-top: 5px;
+            line-height: 1;
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            text-shadow: 0 2px 5px rgba(252, 104, 6, 0.2);
+        }
+        .price::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -150%;
+            width: 50%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transform: skewX(-25deg);
+            animation: shimmer 3s infinite 1s;
+        }
+        @keyframes shimmer {
+            0% { left: -150%; }
+            100% { left: 150%; }
+        }
+
+        input[type="tel"] {
+            width: 100%; padding: 18px; border: 2px solid #E5E7EB;
+            border-radius: var(--radius); font-size: 1.2rem;
+            font-family: 'Quicksand', sans-serif; font-weight: 700;
+            box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s;
+            text-align: center;
+        }
+        input[type="tel"]:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(252, 104, 6, 0.1);
+        }
+        input[type="tel"].error {
+            border-color: var(--error-color);
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+          10%, 90% { transform: translate3d(-1px, 0, 0); }
+          20%, 80% { transform: translate3d(2px, 0, 0); }
+          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+          40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        
+        .scarcity-notice {
+            margin-top: 25px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        button#submitBtn {
+            width: 100%; padding: 18px; background: var(--primary-color);
+            color: var(--white-color); border: none; border-radius: var(--radius);
+            font-size: 1.3rem; font-weight: 700; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s; display: flex;
+            justify-content: center; align-items: center; gap: 10px;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 15px;
+            box-shadow: 0 4px 20px -5px rgba(252, 104, 6, 0.5);
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px -5px rgba(252, 104, 6, 0.6);
+        }
+        button:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        button:disabled {
+            opacity: 0.7; cursor: not-allowed;
+            transform: translateY(0);
+            animation: none;
+        }
+        .loading-spinner {
+            border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #ffffff;
+            border-radius: 50%; width: 20px; height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #message-area {
+            margin-top: 15px; padding: 15px; border-radius: 12px;
+            display: none; animation: slideIn 0.4s ease-out;
+            font-weight: 600; line-height: 1.6;
+            background-color: #FEE2E2; color: var(--error-color);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .success-voucher {
+            text-align: center; border: 2px dashed var(--primary-color);
+            padding: 20px; border-radius: var(--radius); background-color: #fff;
+        }
+        .success-voucher .logo { max-width: 80px; margin-bottom: 15px; }
+        .success-voucher h2 {
+            font-size: 1.5rem; color: var(--dark-color);
+            margin: 0 0 10px; text-transform: uppercase;
+        }
+        .success-voucher .promo-details {
+            background-color: #FFFBEB; padding: 15px;
+            border-radius: 10px; margin-bottom: 20px;
+        }
+        .success-voucher .promo-details p {
+            margin: 0; font-size: 1.1rem;
+            color: var(--dark-color); font-weight: 600;
+        }
+        .success-voucher .promo-details .price {
+            font-size: 2.5rem; font-weight: 700;
+            color: var(--primary-color); margin-top: 5px;
+        }
+        .success-voucher .instructions {
+            font-size: 1rem; color: var(--text-color);
+            background-color: #F3F4F6; padding: 15px;
+            border-radius: 10px; font-weight: 600;
+        }
+        .confetti {
+            position: fixed; top: 0; left: 0; width: 100%;
+            height: 100%; pointer-events: none; z-index: 1;
+        }
+        .confetti-piece {
+            position: absolute; width: 10px; height: 20px;
+            background: var(--primary-color); top: -50px;
+            opacity: 0; animation: drop 4s linear infinite;
+        }
+        .confetti-piece:nth-child(2n) { background: #FFD700; }
+        .confetti-piece:nth-child(3n) { background: #FF4D4D; }
+        .confetti-piece:nth-child(4n) { background: #34D399; }
+        @keyframes drop {
+            0% { transform: translateY(0) rotateZ(0); opacity: 1; }
+            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+        }
+        @media (max-width: 480px) {
+            .card { padding: 20px 25px 25px 25px; margin-top: 50px; }
+            .logo { width: 80px; height: 80px; margin: -60px auto 15px; }
+            .main-title { font-size: 1.5rem; }
+            .price { font-size: 2.5rem; }
+            button { font-size: 1.2rem; padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="confetti" id="confetti-container"></div>
+    <div class="main-container" id="main-container">
+        <div class="card">
+            <div id="form-container">
+                <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo"/>
+                
+                <div class="promo-image-wrapper">
+                    <img src="https://i.postimg.cc/qvKqCBJ0/Thi-t-k-ch-a-c-t-n.png" alt="Combo Bánh Bao Xiên Nướng" class="promo-image"/>
+                    <div class="promo-badge"><span>🔥</span> Hot Deal</div>
+                </div>
+
+                <div class="offer-title">
+                    <h1 class="main-title">COMBO: BÁNH BAO XIÊN NƯỚNG</h1>
+                    <p class="price">7.000 Đ</p>
+                </div>
+
+                <div class="input-group">
+                    <input type="tel" id="phone" placeholder="Nhập số điện thoại Zalo của bạn" maxlength="10">
+                </div>
+                
+                <p class="scarcity-notice">⚠️ Số lượng có hạn! Ưu đãi sẽ sớm kết thúc.</p>
+
+                <button id="submitBtn">
+                    <span id="btnText">NHẬN ƯU ĐÃI NGAY!</span>
+                    <span id="loadingSpinner" style="display: none;" class="loading-spinner"></span>
+                </button>
+                <div id="message-area"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const DOMElements = {
+                phoneInput: document.getElementById('phone'),
+                submitButton: document.getElementById('submitBtn'),
+                btnText: document.getElementById('btnText'),
+                loadingSpinner: document.getElementById('loadingSpinner'),
+                messageArea: document.getElementById('message-area'),
+                formContainer: document.getElementById('form-container'),
+                confettiContainer: document.getElementById('confetti-container'),
+                card: document.querySelector('.card')
+            };
+
+            const API_URL = "https://script.google.com/macros/s/AKfycbz0TCr3kDTAayb-jbSOaZcHry8h6zXtU4GZdc_tYx0m0vbN9SOufv4nxle1WJaGGqgKXg/exec";
+
+            DOMElements.submitButton.addEventListener('click', submitData);
+            DOMElements.phoneInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') submitData();
+            });
+            DOMElements.phoneInput.addEventListener('input', () => {
+                DOMElements.phoneInput.classList.remove('error');
+                DOMElements.messageArea.style.display = 'none';
+            });
+
+            async function submitData() {
+                const phone = DOMElements.phoneInput.value.trim();
+                
+                DOMElements.phoneInput.classList.remove('error');
+                DOMElements.messageArea.style.display = 'none';
+
+                if (!/^0[0-9]{9}$/.test(phone)) {
+                    showMessage("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số, bắt đầu bằng 0.");
+                    DOMElements.phoneInput.classList.add('error');
+                    return;
+                }
+                
+                toggleButtonLoading(true);
+
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'savePromoPhone', phone: phone })
+                    });
+
+                    if (!res.ok) throw new Error('Lỗi kết nối đến máy chủ.');
+                    
+                    const result = await res.json();
+                    if (result.status !== 'SUCCESS') throw new Error(result.message || 'Lỗi không xác định.');
+
+                    showSuccessScreen();
+                    startConfetti();
+
+                } catch (err) {
+                    showMessage(`Đã có lỗi xảy ra: ${err.message}. Vui lòng thử lại.`);
+                    toggleButtonLoading(false);
+                }
+            }
+            
+            function showMessage(message) {
+                DOMElements.messageArea.textContent = message;
+                DOMElements.messageArea.style.display = 'block';
+            }
+
+            function toggleButtonLoading(isLoading) {
+                DOMElements.submitButton.disabled = isLoading;
+                DOMElements.btnText.style.display = isLoading ? 'none' : 'inline';
+                DOMElements.loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+            }
+            
+            function showSuccessScreen() {
+                const logoSrc = document.querySelector('.logo').src;
+                DOMElements.card.style.padding = "20px";
+                DOMElements.card.style.marginTop = "0";
+                DOMElements.card.innerHTML = `
+                    <div class="success-voucher">
+                        <img src="${logoSrc}" alt="Logo Bánh Mì Ông Kòi" class="logo"/>
+                        <h2>BẠN ĐÃ NHẬN ĐƯỢC ƯU ĐÃI!</h2>
+                        <div class="promo-details">
+                            <p>COMBO BÁNH BAO XIÊN NƯỚNG</p>
+                            <div class="price">7.000 Đ</div>
+                        </div>
+                        <p class="instructions">
+                            ƯU ĐÃI sẽ được gửi đến Zalo của bạn trong THỜI GIAN SỚM NHẤT. Vui lòng kiểm tra tin nhắn từ BÁNH MÌ ÔNG KÒI và đến cửa hàng để nhận ưu đãi nhoa !
+                        </p>
+                    </div>
+                `;
+            }
+
+            function startConfetti() {
+                for (let i = 0; i < 50; i++) {
+                    const confettiPiece = document.createElement('div');
+                    confettiPiece.className = 'confetti-piece';
+                    confettiPiece.style.left = Math.random() * 100 + 'vw';
+                    confettiPiece.style.animationDelay = Math.random() * 4 + 's';
+                    confettiPiece.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                    DOMElements.confettiContainer.appendChild(confettiPiece);
+                }
+            }
+        })();
+    </script>
+
+</body>
+</html>
