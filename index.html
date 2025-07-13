@@ -23,11 +23,9 @@
             margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
             padding: 20px;
             box-sizing: border-box;
-            overflow: hidden;
         }
         .main-container {
             width: 100%;
@@ -336,6 +334,7 @@
                 try {
                     const res = await fetch(API_URL, {
                         method: 'POST',
+                        // **SỬA LỖI:** Quay lại sử dụng text/plain để tránh lỗi CORS
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ action: 'savePromoPhone', phone: phone })
                     });
@@ -349,7 +348,14 @@
                     startConfetti();
 
                 } catch (err) {
-                    showMessage(`Đã có lỗi xảy ra: ${err.message}. Vui lòng thử lại.`);
+                    // Cập nhật thông báo lỗi để rõ ràng hơn
+                    let errorMessage = `Đã có lỗi xảy ra. Vui lòng thử lại.`;
+                    if (err.message.includes('Failed to fetch')) {
+                        errorMessage = `Lỗi mạng hoặc kết nối. Vui lòng kiểm tra lại đường truyền và thử lại.`
+                    } else {
+                        errorMessage = `Đã có lỗi xảy ra: ${err.message}. Vui lòng thử lại.`
+                    }
+                    showMessage(errorMessage);
                     toggleButtonLoading(false);
                 }
             }
@@ -393,6 +399,9 @@
                     confettiPiece.style.animationDuration = (Math.random() * 2 + 3) + 's';
                     DOMElements.confettiContainer.appendChild(confettiPiece);
                 }
+                setTimeout(() => {
+                    DOMElements.confettiContainer.innerHTML = '';
+                }, 6000);
             }
         })();
     </script>
