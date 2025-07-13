@@ -4,77 +4,254 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tích điểm Nhà Kòi</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
   <style>
-    body {
-      background-image: url('background.jpg');
-      background-size: cover;
-      background-position: center;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 40px;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .logo {
-      max-width: 130px;
-      margin-bottom: 8px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-    .main-title {
-      margin: 5px 0 2px;
-      text-transform: uppercase;
-      font-size: 20px;
-      font-weight: 600;
-      color: #2d3436;
-    }
-    .subtitle {
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 18px;
-    }
-    .info-box {
-      background: rgba(255,255,255,0.88);
-      margin-top: 18px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      color: #444;
-      box-shadow: 0 0 6px rgba(0,0,0,0.1);
-      text-align: left;
-    }
-    .info-box p {
-      margin: 4px 0;
-      line-height: 1.5;
-    }
+      @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap');
+      :root {
+          --primary-color: #fc6806;
+          --dark-color: #A15200;
+          --background-color: #FFF7ED;
+          --text-color: #4B5563;
+          --white-color: #FFFFFF;
+          --success-color: #10B981;
+          --error-color: #DC2626;
+          --radius: 20px;
+          --shadow: 0 10px 30px -5px rgba(252, 104, 6, 0.15);
+      }
+      body {
+          font-family: 'Quicksand', sans-serif;
+          background-color: var(--background-color);
+          margin: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          padding: 20px;
+          box-sizing: border-box;
+      }
+      .main-container {
+          width: 100%;
+          max-width: 420px;
+          text-align: center;
+      }
+      .card {
+          background-color: var(--white-color);
+          border-radius: var(--radius);
+          box-shadow: var(--shadow);
+          padding: 25px 35px 35px 35px;
+          animation: fadeIn 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+          position: relative;
+          margin-top: 60px;
+      }
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(30px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .logo {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          margin: -75px auto 15px;
+          display: block;
+          position: relative;
+          z-index: 2;
+          border: 5px solid var(--white-color);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+          object-fit: cover;
+      }
+      .main-title {
+          color: var(--dark-color);
+          font-weight: 700;
+          font-size: 1.6rem;
+          margin: 0;
+          text-transform: uppercase;
+      }
+      .subtitle {
+          font-size: 1rem;
+          color: var(--text-color);
+          margin-bottom: 25px;
+          margin-top: 5px;
+      }
+      input[type="tel"] {
+          width: 100%; padding: 18px; border: 2px solid #E5E7EB;
+          border-radius: var(--radius); font-size: 1.2rem;
+          font-family: 'Quicksand', sans-serif; font-weight: 700;
+          box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s;
+          text-align: center;
+      }
+      input[type="tel"]:focus {
+          outline: none; border-color: var(--primary-color);
+          box-shadow: 0 0 0 4px rgba(252, 104, 6, 0.1);
+      }
+      button {
+          width: 100%; padding: 18px; background: var(--primary-color);
+          color: var(--white-color); border: none; border-radius: var(--radius);
+          font-size: 1.3rem; font-weight: 700; cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s; display: flex;
+          justify-content: center; align-items: center; gap: 10px;
+          text-transform: uppercase; letter-spacing: 1px; margin-top: 20px;
+          box-shadow: 0 4px 20px -5px rgba(252, 104, 6, 0.5);
+      }
+      button:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 25px -5px rgba(252, 104, 6, 0.6);
+      }
+      button:disabled {
+          opacity: 0.7; cursor: not-allowed;
+      }
+      .loading-spinner {
+          border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #ffffff;
+          border-radius: 50%; width: 20px; height: 20px;
+          animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+      #result {
+          margin-top: 20px;
+          font-weight: 600;
+          min-height: 24px;
+      }
+      .popup {
+          position: fixed; top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          background: white; padding: 2em;
+          border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.2);
+          text-align: center; font-size: 1.2rem;
+          z-index: 9999; animation: popup-in 0.4s ease-out;
+          min-width: 280px; color: var(--success-color);
+      }
+      .popup-content { font-weight: bold; }
+      .popup.hide { animation: popup-out 0.3s ease-in forwards; }
+      @keyframes popup-in {
+          from { opacity: 0; transform: translate(-50%, -60%); }
+          to   { opacity: 1; transform: translate(-50%, -50%); }
+      }
+      @keyframes popup-out {
+          from { opacity: 1; }
+          to   { opacity: 0; }
+      }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="logo.png" class="logo" alt="Logo Ông Kòi" />
+  <div class="main-container">
+    <div class="card">
+        <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" class="logo" alt="Logo Ông Kòi" />
+        <h1 class="main-title">TÍCH ĐIỂM NHÀ KÒI</h1>
+        <p class="subtitle">Bánh Mì Ông "<strong>KÒI</strong>" – Ăn Vào Nhớ "<strong>HÒI</strong>" Đà Nẵng</p>
 
-    <h2 class="main-title">TÍCH ĐIỂM NHÀ KÒI</h2>
-    <p class="subtitle">Bánh Mì Ông "<strong>KÒI</strong>" – Ăn Vào Nhớ "<strong>HÒI</strong>" Đà Nẵng</p>
-
-    <input type="tel" id="phone" placeholder="Nhập số điện thoại Zalo" />
-    <button id="submitBtn" onclick="submitData()">
-      <span id="btnText">Tích điểm</span>
-      <span id="loadingSpinner" class="loading-spinner" style="display: none;"></span>
-    </button>
-    <p id="result"></p>
-
-    <div class="info-box">
-      <p>👉 Mỗi đơn hàng được tích <strong>10 điểm</strong></p>
-      <p>🎁 Đổi quà khi đạt <strong>100 / 200 / 300 điểm</strong></p>
-      <p>📌 Vui lòng nhập đúng số điện thoại</p>
-      <p>⚠️ Mỗi mã QR chỉ dùng <strong>1 lần duy nhất</strong></p>
+        <input type="tel" id="phone" placeholder="Nhập số điện thoại Zalo" />
+        <button id="submitBtn">
+          <span id="btnText">Tích điểm</span>
+          <span id="loadingSpinner" class="loading-spinner" style="display: none;"></span>
+        </button>
+        <p id="result" style="color: var(--error-color);"></p>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    (function() {
+        const DOMElements = {
+            phoneInput: document.getElementById('phone'),
+            submitButton: document.getElementById('submitBtn'),
+            btnText: document.getElementById('btnText'),
+            loadingSpinner: document.getElementById('loadingSpinner'),
+            resultDiv: document.getElementById('result')
+        };
+
+        const API_URL = "https://script.google.com/macros/s/AKfycbzgrAJB266q718FuMZG6Cnu5pMFsh6XbnlGD8VTt1pQ4pIfftGcCdyBkoKlxyAvRPxUzw/exec";
+
+        // 1. Kiểm tra mã QR khi tải trang
+        window.onload = function () {
+            const params = new URLSearchParams(window.location.search);
+            const maTich = params.get("tich") || params.get("code");
+            if (!maTich) {
+                document.body.innerHTML = createMessagePage("❌ Mã QR không hợp lệ", "Vui lòng quét lại mã đúng hoặc liên hệ nhân viên.");
+                return;
+            };
+
+            fetch(`${API_URL}?check=1&code=${maTich}&t=${new Date().getTime()}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "USED") {
+                        document.body.innerHTML = createMessagePage("⚠️ Mã tích điểm đã được sử dụng", "Mỗi mã chỉ được dùng một lần. Vui lòng liên hệ nhân viên nếu cần hỗ trợ.");
+                    } else if (data.status === "INVALID") {
+                        document.body.innerHTML = createMessagePage("❌ Mã QR không hợp lệ", "Vui lòng quét lại mã đúng hoặc liên hệ nhân viên.");
+                    }
+                })
+                .catch(err => DOMElements.resultDiv.innerText = "⚠️ Không kiểm tra được mã QR. Vui lòng thử lại.");
+        };
+
+        // 2. Gửi dữ liệu khi nhấn nút
+        DOMElements.submitButton.addEventListener('click', submitData);
+        DOMElements.phoneInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitData();
+        });
+
+        function submitData() {
+            const phone = DOMElements.phoneInput.value.trim();
+            const params = new URLSearchParams(window.location.search);
+            const maTich = params.get("tich") || params.get("code");
+            DOMElements.resultDiv.innerText = "";
+
+            if (!/^0[0-9]{9}$/.test(phone)) {
+                DOMElements.resultDiv.innerText = "⚠️ Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số.";
+                return;
+            }
+            if (!maTich) {
+                DOMElements.resultDiv.innerText = "⚠️ Không tìm thấy mã tích điểm. Vui lòng quét lại mã QR.";
+                return;
+            }
+
+            toggleButtonLoading(true);
+            const url = `${API_URL}?ghi=1&phone=${encodeURIComponent(phone)}&code=${encodeURIComponent(maTich)}`;
+            
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "OK") {
+                        showPopup(`✅ Tích điểm thành công!<br><small>SĐT: ${phone}</small><br>⭐ Tổng điểm: <b>${data.tongdiem}</b> điểm`);
+                    } else {
+                        DOMElements.resultDiv.innerText = "⚠️ " + data.message;
+                    }
+                })
+                .catch(() => {
+                    DOMElements.resultDiv.innerText = "❌ Lỗi kết nối. Thử lại sau.";
+                })
+                .finally(() => {
+                    toggleButtonLoading(false);
+                });
+        }
+        
+        // --- Các hàm tiện ích ---
+        function toggleButtonLoading(isLoading) {
+            DOMElements.submitButton.disabled = isLoading;
+            DOMElements.btnText.innerText = isLoading ? 'Đang xử lý' : 'Tích điểm';
+            DOMElements.loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+        }
+
+        function showPopup(message) {
+            const popup = document.createElement("div");
+            popup.className = "popup";
+            popup.innerHTML = `<div class="popup-content">${message}</div>`;
+            document.body.appendChild(popup);
+            setTimeout(() => {
+                popup.classList.add("hide");
+                setTimeout(() => popup.remove(), 500);
+            }, 3000);
+        }
+
+        function createMessagePage(title, message) {
+            return `
+                <div class="main-container">
+                    <div class="card" style="text-align: center;">
+                        <h1 style="font-size: 1.5rem; color: var(--error-color);">${title}</h1>
+                        <p>${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+    })();
+  </script>
 </body>
 </html>
