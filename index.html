@@ -14,6 +14,7 @@
             --white-color: #FFFFFF;
             --error-color: #DC2626;
             --hot-deal-color: #ff4d4d;
+            --admin-bg: #2c3e50;
             --radius: 20px;
             --shadow: 0 10px 30px -5px rgba(252, 104, 6, 0.15);
         }
@@ -24,7 +25,7 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 15px;
             box-sizing: border-box;
             overflow-x: hidden;
         }
@@ -61,6 +62,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             object-fit: cover;
             animation: slideUp 0.7s 0.2s cubic-bezier(0.25, 1, 0.5, 1) both;
+            cursor: pointer;
         }
         
         .promo-image-wrapper {
@@ -69,6 +71,7 @@
             overflow: hidden; 
             border-radius: var(--radius);
             animation: imageImpactDrop 1s cubic-bezier(0.25, 1, 0.5, 1) 0.4s both;
+            transition: transform 0.4s ease, opacity 0.4s ease;
         }
         
         @keyframes imageImpactDrop {
@@ -113,7 +116,7 @@
             text-transform: uppercase;
             transform-origin: bottom left; 
             animation: badgeSlapOn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1s both, 
-                       wobble 2.5s infinite 2s;
+                       badgeWiggle 2.5s infinite 2s;
         }
 
         @keyframes badgeSlapOn {
@@ -122,7 +125,7 @@
             100% { transform: scale(1) rotate(15deg); opacity: 1; }
         }
         
-        @keyframes wobble {
+        @keyframes badgeWiggle {
             0%, 100% { transform: rotate(15deg); }
             25% { transform: rotate(10deg); }
             75% { transform: rotate(20deg); }
@@ -147,6 +150,7 @@
             padding: 15px;
             margin-bottom: 25px;
             animation: slideUp 0.7s 1.3s cubic-bezier(0.25, 1, 0.5, 1) both;
+            transition: transform 0.4s ease, opacity 0.4s ease;
         }
         .price-line {
             overflow: hidden;
@@ -170,77 +174,66 @@
             text-transform: uppercase;
             margin: 8px 0;
         }
-        .deal-label span { animation-delay: 1.5s; }
+        .deal-label span {
+            animation: 
+                textReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.5s forwards,
+                bounce 2s ease-in-out 2.4s infinite;
+        }
 
         .final-price {
             font-size: 3rem;
             color: var(--hot-deal-color);
             font-weight: 700;
-            line-height: 1;
+            line-height: 1.2;
         }
-        .final-price span { animation-delay: 1.6s; }
+        .final-price span {
+            display: inline-block;
+            transform: translateY(110%);
+            animation: 
+                textReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.6s forwards,
+                priceWiggle 1.5s linear 2.5s infinite;
+        }
 
         @keyframes textReveal {
             to { transform: translateY(0); }
         }
-        
-        .countdown-timer {
-            background-color: #fffbeb;
-            border: 2px dashed var(--primary-color);
-            border-radius: var(--radius);
-            padding: 15px;
-            margin-bottom: 25px;
-            animation: slideUp 0.7s 1.7s cubic-bezier(0.25, 1, 0.5, 1) both;
-        }
-        .countdown-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--dark-color);
-            margin: 0 0 15px;
-            text-transform: uppercase;
-        }
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        .timer-box {
-            background: var(--white-color);
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .timer-box span {
-            display: block;
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-        .timer-box span:first-child {
-            font-size: 2rem;
-            line-height: 1;
-        }
-        .timer-box .timer-label {
-            font-size: 0.8rem;
-            color: var(--text-color);
-            font-weight: 600;
-            margin-top: 5px;
-        }
 
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-15px);
+            }
+            60% {
+                transform: translateY(-7px);
+            }
+        }
+        
+        @keyframes priceWiggle {
+            0%, 100% { transform: rotate(0); }
+            20% { transform: rotate(-3deg); }
+            40% { transform: rotate(3deg); }
+            60% { transform: rotate(-3deg); }
+            80% { transform: rotate(3deg); }
+        }
+        
         .input-group {
              animation: slideUp 0.7s 1.8s cubic-bezier(0.25, 1, 0.5, 1) both;
+             transition: transform 0.4s ease;
         }
-        input[type="tel"] {
+        input[type="tel"], input[type="text"] {
             width: 100%; padding: 18px; border: 2px solid #E5E7EB;
             border-radius: var(--radius); font-size: 1.2rem;
             font-family: 'Quicksand', sans-serif; font-weight: 700;
             box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s;
             text-align: center;
         }
-        input[type="tel"]:focus {
+        input[type="tel"]:focus, input[type="text"]:focus {
             outline: none; border-color: var(--primary-color);
             box-shadow: 0 0 0 4px rgba(252, 104, 6, 0.1);
         }
-        input[type="tel"].error {
+        input[type="tel"].error, input[type="text"].error {
             border-color: var(--error-color);
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
@@ -251,37 +244,33 @@
           40%, 60% { transform: translate3d(4px, 0, 0); }
         }
         
-        .scarcity-notice {
-            margin-top: 25px;
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 0.95rem;
-            animation: slideUp 0.7s 1.9s cubic-bezier(0.25, 1, 0.5, 1) both;
-        }
-        .scarcity-notice strong {
-            color: var(--hot-deal-color);
-            font-size: 1.1em;
-        }
-
-        button#submitBtn {
+        button.submit-btn {
             width: 100%; padding: 18px; background: var(--primary-color);
             color: var(--white-color); border: none; border-radius: var(--radius);
             font-size: 1.3rem; font-weight: 700; cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s; 
             display: flex;
             justify-content: center; align-items: center; gap: 10px;
-            text-transform: uppercase; letter-spacing: 1px; margin-top: 15px;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 25px;
             box-shadow: 0 4px 20px -5px rgba(252, 104, 6, 0.5);
-            animation: slideUp 0.7s 2.0s cubic-bezier(0.25, 1, 0.5, 1) both;
+            animation: 
+                slideUp 0.7s 2.0s cubic-bezier(0.25, 1, 0.5, 1) both,
+                buttonBreathe 3s ease-in-out 2.5s infinite;
         }
-        button:hover {
-            transform: translateY(-3px);
+        
+        @keyframes buttonBreathe {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 20px -5px rgba(252, 104, 6, 0.5); }
+            50% { transform: scale(1.03); box-shadow: 0 6px 25px -5px rgba(252, 104, 6, 0.7); }
+        }
+
+        button.submit-btn:hover {
+            transform: translateY(-3px) scale(1.03);
             box-shadow: 0 6px 25px -5px rgba(252, 104, 6, 0.6);
         }
-        button:active {
+        button.submit-btn:active {
             transform: translateY(-1px) scale(0.98);
         }
-        button:disabled {
+        button.submit-btn:disabled {
             opacity: 0.7; cursor: not-allowed;
             transform: translateY(0);
             animation: none;
@@ -295,32 +284,23 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .social-proof {
-            margin-top: 20px;
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 0.95rem;
-            animation: slideUp 0.7s 2.1s cubic-bezier(0.25, 1, 0.5, 1) both;
-        }
-        .social-proof strong {
-            color: var(--dark-color);
-        }
-        .social-proof-animation {
-            animation: pulse 2.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
         
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* FOCUS EFFECT CLASS */
+        .form-focused .promo-image-wrapper,
+        .form-focused .price-block {
+            transform: scale(0.95);
+            opacity: 0.6;
+        }
+        .form-focused .input-group {
+            transform: scale(1.05);
+        }
 
-        #message-area {
+        .message-area {
             margin-top: 15px; padding: 15px; border-radius: 12px;
             display: none; animation: slideIn 0.4s ease-out;
             font-weight: 600; line-height: 1.6;
@@ -331,8 +311,7 @@
             to { opacity: 1; transform: scale(1); }
         }
         .result-screen {
-            text-align: center; border: 2px dashed var(--primary-color);
-            padding: 20px; border-radius: var(--radius); background-color: #fff;
+            text-align: center;
         }
         .result-screen .logo { max-width: 80px; margin-bottom: 15px; }
         .result-screen h2 {
@@ -342,6 +321,7 @@
         .result-screen .promo-details {
             background-color: #FFFBEB; padding: 15px;
             border-radius: 10px; margin-bottom: 20px;
+            border: 2px dashed var(--primary-color);
         }
         .result-screen .promo-details p {
             margin: 0; font-size: 1.1rem;
@@ -355,14 +335,14 @@
             font-size: 1rem; color: var(--text-color);
             background-color: #F3F4F6; padding: 15px;
             border-radius: 10px; font-weight: 600;
+            line-height: 1.6;
         }
-        /* Nút Facebook */
         .fb-button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background-color: #1877F2; /* Facebook Blue */
+            background-color: #1877F2;
             color: white;
             padding: 12px 20px;
             border-radius: 10px;
@@ -398,240 +378,501 @@
             100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
         }
 
+        /* ADMIN PANEL STYLES */
+        #admin-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--admin-bg);
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 2001;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+        }
+        #admin-panel.show {
+            transform: translateY(0);
+        }
+        #admin-panel h3 {
+            margin-top: 0;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+        .admin-group {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .admin-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        #toggle-promo-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+        }
+        #toggle-promo-btn.on {
+            background-color: var(--hot-deal-color);
+            color: white;
+        }
+        #toggle-promo-btn.off {
+            background-color: #27ae60;
+            color: white;
+        }
+        #close-admin-btn {
+            width: 100%;
+            margin-top: 10px;
+            background-color: #95a5a6;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        /* TOAST NOTIFICATION STYLE */
+        #social-proof-toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .toast {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .toast strong {
+            color: #f1c40f; /* Yellow color for phone number */
+        }
+        
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2002;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            max-width: 90%;
+            width: 320px;
+        }
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+        .modal-content p {
+            margin: 0 0 20px 0;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        .modal-buttons button, .modal-content button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1rem;
+            margin: 0 10px;
+        }
+        #custom-confirm-yes, #secret-code-submit {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #custom-confirm-no, #secret-code-cancel {
+            background-color: #bdc3c7;
+            color: white;
+        }
+        .modal-buttons button:hover, .modal-content button:hover {
+            transform: scale(1.05);
+        }
+        #secret-code-modal .input-group {
+            margin-bottom: 15px;
+        }
+        
+        /* SECRET CODE TRIGGER */
+        .secret-code-trigger {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .secret-code-trigger:hover {
+            transform: scale(1.1);
+            text-decoration: underline;
+        }
+
+
         @media (max-width: 480px) {
+            body {
+                padding-top: 10px;
+            }
             .card { 
-                padding: 20px;
-                margin-top: 50px; 
+                padding: 15px;
+                margin-top: 45px; 
             }
             
             .logo { 
-                width: 80px; 
-                height: 80px; 
-                margin: -55px auto 10px;
+                width: 70px; 
+                height: 70px; 
+                margin: -50px auto 10px;
+                border-width: 4px;
             }
 
-            .promo-image-wrapper, .offer-title, .countdown-timer {
-                margin-bottom: 20px;
+            .promo-image-wrapper {
+                margin-bottom: 15px;
+                max-height: 200px;
+            }
+            .promo-image {
+                object-fit: cover;
+                height: 100%;
+            }
+            .promo-badge {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+                top: 10px;
+            }
+
+            .offer-title {
+                margin-bottom: 15px;
             }
 
             .main-title { 
-                font-size: 1.2rem;
-                margin-bottom: 15px;
+                font-size: 1.1rem;
+                margin-bottom: 10px;
             }
             .price-block {
-                padding: 12px;
+                padding: 10px;
+                margin-bottom: 15px;
             }
-            .original-price { font-size: 1.1rem; }
-            .deal-label { font-size: 0.9rem; margin: 6px 0; }
-            .final-price { font-size: 2.8rem; }
-
-            .countdown-timer {
-                padding: 12px;
-                border-radius: 15px;
-            }
-            .countdown-title {
-                font-size: 1rem;
-                margin-bottom: 12px;
-            }
-            .timer-box span:first-child { 
-                font-size: 1.8rem; 
-            }
-            .timer-box .timer-label {
-                font-size: 0.7rem;
-                margin-top: 3px;
-            }
+            .original-price { font-size: 1rem; }
+            .deal-label { font-size: 0.8rem; margin: 5px 0; }
+            .final-price { font-size: 2.5rem; }
 
             input[type="tel"] {
-                padding: 16px;
-                font-size: 1.1rem;
-            }
-            .scarcity-notice, .social-proof {
-                margin-top: 15px;
-                font-size: 0.9rem;
+                padding: 15px;
+                font-size: 1rem;
             }
             
-            button#submitBtn { 
-                font-size: 1.15rem; 
-                padding: 16px;
+            button.submit-btn { 
+                font-size: 1.1rem; 
+                padding: 15px;
                 margin-top: 15px;
+            }
+            #social-proof-toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                align-items: center;
             }
         }
     </style>
 </head>
 <body>
     <div class="confetti" id="confetti-container"></div>
+    <div id="social-proof-toast-container"></div>
+
     <div class="main-container" id="main-container">
         <div class="card">
             <div id="form-container">
-                <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo"/>
-                
-                <div class="promo-image-wrapper">
-                    <img src="https://i.postimg.cc/qvKqCBJ0/Thi-t-k-ch-a-c-t-n.png" alt="Combo Bánh Bao Xiên Nướng" class="promo-image"/>
-                    <div class="promo-badge"><span>🔥</span> Hot Deal</div>
-                </div>
-
-                <div class="offer-title">
-                    <h1 class="main-title">COMBO: BÁNH BAO XIÊN NƯỚNG</h1>
-                    <div class="price-block">
-                        <div class="price-line original-price"><span>Giá gốc: <del>22.000Đ</del></span></div>
-                        <div class="price-line deal-label"><span>🔥 Ưu đãi hôm nay 🔥</span></div>
-                        <div class="price-line final-price"><span>CHỈ 7.000Đ</span></div>
-                    </div>
-                </div>
-
-                <div id="countdown-timer" class="countdown-timer">
-                    <p class="countdown-title">Ưu đãi kết thúc sau</p>
-                    <div class="timer-grid">
-                        <div class="timer-box"><span id="hours">00</span><span class="timer-label">Giờ</span></div>
-                        <div class="timer-box"><span id="minutes">00</span><span class="timer-label">Phút</span></div>
-                        <div class="timer-box"><span id="seconds">00</span><span class="timer-label">Giây</span></div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <input type="tel" id="phone" placeholder="Nhập số điện thoại Zalo của bạn" maxlength="10">
-                </div>
-                
-                <p class="scarcity-notice" id="scarcity-notice">
-                    Chỉ còn lại <strong>100</strong> suất trong hôm nay!
-                </p>
-
-                <button id="submitBtn">
-                    <span id="btnText">NHẬN ƯU ĐÃI NGAY!</span>
-                    <span id="loadingSpinner" style="display: none;" class="loading-spinner"></span>
-                </button>
-
-                <div class="social-proof" id="social-proof">
-                    <span class="social-proof-animation">⚡️ <strong>38 người</strong> đã nhận ưu đãi!</span>
-                </div>
-
-                <div id="message-area"></div>
+                <!-- Nội dung sẽ được render bởi JS -->
             </div>
         </div>
     </div>
 
+    <!-- ADMIN PANEL HTML -->
+    <div id="admin-panel">
+        <h3>BẢNG ĐIỀU KHIỂN</h3>
+        <div class="admin-group">
+            <label id="promo-status-label">Trạng thái: Đang chạy</label>
+            <button id="toggle-promo-btn">TẠM DỪNG ƯU ĐÃI</button>
+        </div>
+        <button id="close-admin-btn">Đóng</button>
+    </div>
+    
+    <!-- CUSTOM MODALS -->
+    <div id="custom-confirm-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <p id="custom-confirm-msg">Bạn có chắc không?</p>
+            <div class="modal-buttons">
+                <button id="custom-confirm-yes">Có</button>
+                <button id="custom-confirm-no">Không</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="secret-code-overlay" class="modal-overlay">
+        <div id="secret-code-modal" class="modal-content">
+            <p>Nhập mã ưu đãi của bạn</p>
+            <div class="input-group">
+                <input type="text" id="secret-code-input" placeholder="MÃ BÍ MẬT">
+            </div>
+            <div class="input-group">
+                <input type="tel" id="secret-code-phone" placeholder="SĐT Zalo của bạn" maxlength="10">
+            </div>
+            <div id="secret-code-message-area" class="message-area" style="margin-bottom: 20px;"></div>
+            <div class="modal-buttons">
+                <button id="secret-code-submit">Xác nhận</button>
+                <button id="secret-code-cancel">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         (function() {
             const DOMElements = {
-                phoneInput: document.getElementById('phone'),
-                submitButton: document.getElementById('submitBtn'),
-                btnText: document.getElementById('btnText'),
-                loadingSpinner: document.getElementById('loadingSpinner'),
-                messageArea: document.getElementById('message-area'),
                 formContainer: document.getElementById('form-container'),
                 confettiContainer: document.getElementById('confetti-container'),
+                toastContainer: document.getElementById('social-proof-toast-container'),
                 card: document.querySelector('.card'),
-                hours: document.getElementById('hours'),
-                minutes: document.getElementById('minutes'),
-                seconds: document.getElementById('seconds'),
-                scarcityNotice: document.getElementById('scarcity-notice'),
-                scarcityCounter: document.getElementById('scarcity-notice').querySelector('strong'),
-                socialProof: document.getElementById('social-proof').querySelector('strong')
+                // Admin Panel Elements
+                adminPanel: document.getElementById('admin-panel'),
+                togglePromoBtn: document.getElementById('toggle-promo-btn'),
+                promoStatusLabel: document.getElementById('promo-status-label'),
+                closeAdminBtn: document.getElementById('close-admin-btn'),
             };
 
-            const API_URL = "https://script.google.com/macros/s/AKfycbz0TCr3kDTAayb-jbSOaZcHry8h6zXtU4GZdc_tYx0m0vbN9SOufv4nxle1WJaGGqgKXg/exec";
+            const API_URL = "https://script.google.com/macros/s/AKfycbxmppVRJwzauak_L_OfDHkSC9BVkIjn4v1dbz_ZljnDGhJH5SdX5fPxq1PN21Aak4YrSw/exec";
+            const SECRET_CODES = ['KOL10', 'ONGKOIVIP', 'BANHMI7K', 'FOODIDANANG', 'REVIEWBUNRIEUCUA'];
 
-            let stock = 100;
-            let claims = 38;
-            let liveCounterInterval;
-            let hasStockRunOut = false;
+            let state = {};
+            let socialProofInterval;
 
-            function startCountdown() {
+            // --- STATE MANAGEMENT ---
+            function saveState() {
+                localStorage.setItem('promoState', JSON.stringify(state));
+            }
+
+            function loadState() {
+                const savedState = JSON.parse(localStorage.getItem('promoState'));
+                const today = new Date().toLocaleDateString();
+
+                if (savedState && savedState.date === today) {
+                    state = savedState;
+                } else {
+                    state = {
+                        hasStockRunOut: false,
+                        date: today
+                    };
+                    saveState();
+                }
+            }
+            
+            // --- RENDER FUNCTIONS ---
+            function renderInitialView() {
+                DOMElements.formContainer.innerHTML = `
+                    <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo" id="logo"/>
+                    <div class="promo-image-wrapper">
+                        <img src="https://i.postimg.cc/qvKqCBJ0/Thi-t-k-ch-a-c-t-n.png" alt="Combo Bánh Bao Xiên Nướng" class="promo-image"/>
+                        <div class="promo-badge"><span>🔥</span> Hot Deal</div>
+                    </div>
+                    <div class="offer-title">
+                        <h1 class="main-title">COMBO: BÁNH BAO XIÊN NƯỚNG</h1>
+                        <div class="price-block">
+                            <div class="price-line original-price"><span>Giá gốc: <del>15.000Đ</del></span></div>
+                            <div class="price-line deal-label"><span>🔥 Ưu đãi hôm nay 🔥</span></div>
+                            <div class="price-line final-price"><span>CHỈ 7.000Đ</span></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="tel" id="phone" placeholder="Nhập số điện thoại Zalo của bạn" maxlength="10">
+                    </div>
+                    <button id="submitBtn" class="submit-btn">
+                        <span id="btnText">NHẬN ƯU ĐÃI NGAY!</span>
+                        <span id="loadingSpinner" style="display: none;" class="loading-spinner"></span>
+                    </button>
+                    <div id="message-area" class="message-area"></div>
+                    <div class="secret-code-trigger" id="secret-code-trigger">🎁 Bạn có mã ưu đãi riêng?</div>
+                `;
+                addEventListeners();
+                startSocialProof();
+            }
+            
+            // --- EVENT LISTENERS ---
+            function addEventListeners() {
+                const phoneInput = document.getElementById('phone');
+                document.getElementById('submitBtn').addEventListener('click', handleNormalSubmit);
+                phoneInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleNormalSubmit();
+                });
+                phoneInput.addEventListener('input', (e) => {
+                    e.target.classList.remove('error');
+                    document.getElementById('message-area').style.display = 'none';
+                });
+                
+                phoneInput.addEventListener('focus', () => {
+                    DOMElements.formContainer.classList.add('form-focused');
+                });
+                phoneInput.addEventListener('blur', () => {
+                    DOMElements.formContainer.classList.remove('form-focused');
+                });
+
+                document.getElementById('logo').addEventListener('click', handleLogoClick);
+                document.getElementById('secret-code-trigger').addEventListener('click', showSecretCodeModal);
+            }
+
+            // --- SOCIAL PROOF ---
+            function generateFakePhone() {
+                const prefixes = ['090', '091', '093', '098', '086', '033', '035', '037', '038', '039'];
+                const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                const lastDigits = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+                return `${prefix}*****${lastDigits}`;
+            }
+            
+            function isPeakTime() {
                 const now = new Date();
-                const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-                
-                const interval = setInterval(() => {
-                    const currentTime = new Date().getTime();
-                    const distance = endOfDay - currentTime;
-
-                    if (distance < 0) {
-                        clearInterval(interval);
-                        document.getElementById('countdown-timer').innerHTML = '<p class="countdown-title">ƯU ĐÃI HÔM NAY ĐÃ KẾT THÚC!</p>';
-                        DOMElements.submitButton.disabled = true;
-                        DOMElements.btnText.textContent = "HẸN BẠN NGÀY MAI";
-                        return;
-                    }
-
-                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                    DOMElements.hours.textContent = String(hours).padStart(2, '0');
-                    DOMElements.minutes.textContent = String(minutes).padStart(2, '0');
-                    DOMElements.seconds.textContent = String(seconds).padStart(2, '0');
-                }, 1000);
+                const hours = now.getHours();
+                const isMorningPeak = hours >= 6 && hours < 9;
+                const isLunchPeak = hours >= 11 && hours < 14;
+                const isEveningPeak = hours >= 17 && hours < 20;
+                return isMorningPeak || isLunchPeak || isEveningPeak;
             }
 
-            function updateLiveCounters() {
-                DOMElements.scarcityCounter.textContent = stock;
-                DOMElements.socialProof.textContent = `${claims} người`;
-
-                liveCounterInterval = setInterval(() => {
-                    if (stock <= 50) {
-                        if (!hasStockRunOut) {
-                            DOMElements.scarcityNotice.innerHTML = '🔥 <strong>ĐÃ HẾT 50 SUẤT ƯU ĐÃI!</strong> 🔥';
-                            DOMElements.btnText.textContent = 'ĐĂNG KÝ NHẬN ƯU ĐÃI SAU';
-                            DOMElements.submitButton.style.backgroundColor = '#6D28D9';
-                            hasStockRunOut = true;
-                        }
-                        clearInterval(liveCounterInterval);
-                        return;
-                    }
-                    
-                    stock--;
-                    claims++;
-
-                    DOMElements.scarcityCounter.textContent = stock;
-                    DOMElements.socialProof.textContent = `${claims} người`;
-
-                }, Math.random() * 20000 + 10000);
-            }
-
-            DOMElements.submitButton.addEventListener('click', submitData);
-            DOMElements.phoneInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') submitData();
-            });
-            DOMElements.phoneInput.addEventListener('input', () => {
-                DOMElements.phoneInput.classList.remove('error');
-                DOMElements.messageArea.style.display = 'none';
-            });
-
-            async function submitData() {
-                const phone = DOMElements.phoneInput.value.trim();
-                
-                DOMElements.phoneInput.classList.remove('error');
-                DOMElements.messageArea.style.display = 'none';
-
-                if (!/^0[0-9]{9}$/.test(phone)) {
-                    showMessage("Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số, bắt đầu bằng 0.");
-                    DOMElements.phoneInput.classList.add('error');
+            function showSocialProofToast() {
+                if (state.hasStockRunOut) {
+                    if(socialProofInterval) clearInterval(socialProofInterval);
                     return;
                 }
+
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                const fakePhone = generateFakePhone();
+                toast.innerHTML = `⚡️ <strong>${fakePhone}</strong> vừa nhận ưu đãi!`;
                 
-                toggleButtonLoading(true);
+                DOMElements.toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 100);
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.addEventListener('transitionend', () => {
+                        if (toast.parentElement) {
+                            toast.parentElement.removeChild(toast);
+                        }
+                    });
+                }, 4000); 
+            }
+
+            function startSocialProof() {
+                if (state.hasStockRunOut) return; 
+                
+                const runCheck = () => {
+                    if (isPeakTime() && Math.random() < 0.4) {
+                        const burstCount = Math.floor(Math.random() * 2) + 2;
+                        for (let i = 0; i < burstCount; i++) {
+                            setTimeout(() => {
+                                showSocialProofToast();
+                            }, i * 800);
+                        }
+                    } else {
+                        showSocialProofToast();
+                    }
+                };
+
+                setTimeout(runCheck, 3500);
+                socialProofInterval = setInterval(runCheck, Math.random() * 8000 + 9000);
+            }
+            
+            // --- DATA SUBMISSION ---
+            async function submitData(phone, secretCode = null) {
+                const isSecretSubmission = !!secretCode;
+                const phoneInput = document.getElementById(isSecretSubmission ? 'secret-code-phone' : 'phone');
+                const messageArea = document.getElementById(isSecretSubmission ? 'secret-code-message-area' : 'message-area');
+                
+                phoneInput.classList.remove('error');
+                if(messageArea) messageArea.style.display = 'none';
+
+                if (!/^0[0-9]{9}$/.test(phone)) {
+                    showMessage("Số điện thoại không hợp lệ.", isSecretSubmission ? 'secret-code-message-area' : 'message-area');
+                    phoneInput.classList.add('error');
+                    return false;
+                }
+                
+                toggleButtonLoading(true, isSecretSubmission ? 'secret-code-submit' : 'submitBtn');
 
                 try {
+                    const payload = { 
+                        action: 'savePromoPhone', 
+                        phone: phone,
+                        ...(secretCode && { code: secretCode })
+                    };
+
                     const res = await fetch(API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'savePromoPhone', phone: phone })
+                        body: JSON.stringify(payload)
                     });
 
                     if (!res.ok) throw new Error('Lỗi kết nối đến máy chủ.');
                     
                     const result = await res.json();
                     if (result.status !== 'SUCCESS') throw new Error(result.message || 'Lỗi không xác định.');
-
-                    if (!hasStockRunOut) {
-                        stock--;
-                        claims++;
-                        DOMElements.scarcityCounter.textContent = stock;
-                        DOMElements.socialProof.textContent = `${claims} người`;
-                        showSuccessScreen();
-                        startConfetti();
-                    } else {
-                        showBaitScreen();
-                    }
+                    
+                    return true;
 
                 } catch (err) {
                     let errorMessage = `Đã có lỗi xảy ra. Vui lòng thử lại.`;
@@ -640,30 +881,52 @@
                     } else {
                         errorMessage = `Đã có lỗi xảy ra: ${err.message}. Vui lòng thử lại.`
                     }
-                    showMessage(errorMessage);
-                    toggleButtonLoading(false);
+                    showMessage(errorMessage, isSecretSubmission ? 'secret-code-message-area' : 'message-area');
+                    toggleButtonLoading(false, isSecretSubmission ? 'secret-code-submit' : 'submitBtn');
+                    return false;
                 }
             }
             
-            function showMessage(message) {
-                DOMElements.messageArea.textContent = message;
-                DOMElements.messageArea.style.display = 'block';
+            async function handleNormalSubmit() {
+                const phone = document.getElementById('phone').value.trim();
+                const success = await submitData(phone);
+                if(success) {
+                    const currentSavedState = JSON.parse(localStorage.getItem('promoState')) || state;
+                    if (!currentSavedState.hasStockRunOut) {
+                        showSuccessScreen();
+                        startConfetti();
+                    } else {
+                        showBaitScreen();
+                    }
+                }
             }
 
-            function toggleButtonLoading(isLoading) {
-                DOMElements.submitButton.disabled = isLoading;
-                DOMElements.btnText.style.display = isLoading ? 'none' : 'inline';
-                DOMElements.loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
+            // --- UI DISPLAY FUNCTIONS ---
+            function showMessage(message, areaId = 'message-area') {
+                const messageArea = document.getElementById(areaId);
+                if(!messageArea) return;
+                messageArea.textContent = message;
+                messageArea.style.display = 'block';
+            }
+
+            function toggleButtonLoading(isLoading, btnId = 'submitBtn') {
+                const submitButton = document.getElementById(btnId);
+                if(!submitButton) return;
+                const btnText = submitButton.querySelector('span:not(.loading-spinner)');
+                const loadingSpinner = submitButton.querySelector('.loading-spinner');
+                
+                submitButton.disabled = isLoading;
+                if(btnText) btnText.style.display = isLoading ? 'none' : 'inline';
+                if(loadingSpinner) loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
             }
             
             function showSuccessScreen() {
-                const logoSrc = document.querySelector('.logo').src;
-                clearInterval(liveCounterInterval);
+                if(socialProofInterval) clearInterval(socialProofInterval);
                 DOMElements.card.style.padding = "20px";
-                DOMElements.card.style.marginTop = "0";
-                DOMElements.card.innerHTML = `
+                DOMElements.card.style.marginTop = "60px";
+                DOMElements.formContainer.innerHTML = `
                     <div class="result-screen">
-                        <img src="${logoSrc}" alt="Logo Bánh Mì Ông Kòi" class="logo"/>
+                        <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo" style="margin-top: -75px;"/>
                         <h2>BẠN ĐÃ NHẬN ĐƯỢC ƯU ĐÃI!</h2>
                         <div class="promo-details">
                             <p>COMBO BÁNH BAO XIÊN NƯỚNG</p>
@@ -677,23 +940,22 @@
             }
 
             function showBaitScreen() {
-                const logoSrc = document.querySelector('.logo').src;
-                clearInterval(liveCounterInterval);
-                DOMElements.card.style.padding = "20px";
-                DOMElements.card.style.marginTop = "0";
-                DOMElements.card.innerHTML = `
+                 if(socialProofInterval) clearInterval(socialProofInterval);
+                 DOMElements.card.style.padding = "20px";
+                 DOMElements.card.style.marginTop = "60px";
+                 DOMElements.formContainer.innerHTML = `
                     <div class="result-screen">
-                        <img src="${logoSrc}" alt="Logo Bánh Mì Ông Kòi" class="logo"/>
-                        <h2>RẤT TIẾC, BẠN ĐÃ CHẬM MẤT RỒI!</h2>
-                        <p class="instructions" style="background-color: #E5E7EB;">
-                           50 suất ưu đãi hôm nay đã được nhận hết. Đừng lo, SĐT của bạn đã được lưu lại để ưu tiên cho lần sau.
+                        <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo" style="margin-top: -75px;"/>
+                        <div class="promo-image-wrapper" style="margin-top: 15px;">
+                            <img src="https://i.postimg.cc/qvKqCBJ0/Thi-t-k-ch-a-c-t-n.png" alt="Combo Bánh Bao Xiên Nướng" class="promo-image"/>
+                        </div>
+                        <h2 style="font-size: 1.5rem; color: var(--dark-color); text-transform: uppercase; margin-top: 0;">RẤT TIẾC, BẠN ĐÃ CHẬM MẤT RỒI!</h2>
+                        <p class="instructions" style="background-color: #FFFBEB; margin-bottom: 20px; border: 1px solid #FEEBCB;">
+                           Chúng tôi đã lưu lại SĐT của bạn. BÁNH MÌ ÔNG KÒI sẽ <strong>ưu tiên liên hệ</strong> với bạn ngay khi có chương trình ưu đãi mới.
                         </p>
-                        <p class="instructions" style="margin-top: 15px;">
-                           Để không bỏ lỡ bất kỳ ưu đãi nào, hãy <strong>theo dõi Fanpage</strong> của chúng tôi. Mọi thông báo sẽ được đăng tải đầu tiên trên đó!
-                        </p>
-                        <a href="https://www.facebook.com/BanhMiOngKoi" target="_blank" class="fb-button">
+                         <a href="https://www.facebook.com/BanhMiOngKoi" target="_blank" class="fb-button">
                             <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.03998C6.48 2.03998 2 6.51998 2 12.04C2 17.08 5.64 21.22 10.44 21.96V14.88H7.88V12.04H10.44V9.83998C10.44 7.29998 11.96 5.95998 14.22 5.95998C15.32 5.95998 16.46 6.15998 16.46 6.15998V8.63998H15.18C13.88 8.63998 13.56 9.35998 13.56 10.16V12.04H16.34L15.88 14.88H13.56V22C18.36 21.24 22 17.08 22 12.04C22 6.51998 17.52 2.03998 12 2.03998Z"></path></svg>
-                            <span>THEO DÕI FANPAGE</span>
+                            <span>THEO DÕI ĐỂ KHÔNG BỎ LỠ</span>
                         </a>
                     </div>
                 `;
@@ -713,8 +975,126 @@
                 }, 6000);
             }
 
-            startCountdown();
-            updateLiveCounters();
+            // --- MODAL & ADMIN LOGIC ---
+            function showCustomConfirm(msg) {
+                return new Promise((resolve) => {
+                    const overlay = document.getElementById('custom-confirm-overlay');
+                    const msgEl = document.getElementById('custom-confirm-msg');
+                    const yesBtn = document.getElementById('custom-confirm-yes');
+                    const noBtn = document.getElementById('custom-confirm-no');
+
+                    msgEl.textContent = msg;
+                    overlay.classList.add('show');
+
+                    const cleanup = (result) => {
+                        overlay.classList.remove('show');
+                        resolve(result);
+                    };
+
+                    yesBtn.onclick = () => cleanup(true);
+                    noBtn.onclick = () => cleanup(false);
+                });
+            }
+            
+            function showSecretCodeModal() {
+                const overlay = document.getElementById('secret-code-overlay');
+                const codeInput = document.getElementById('secret-code-input');
+                const phoneInput = document.getElementById('secret-code-phone');
+                const submitBtn = document.getElementById('secret-code-submit');
+                const cancelBtn = document.getElementById('secret-code-cancel');
+                const messageArea = document.getElementById('secret-code-message-area');
+
+                codeInput.value = '';
+                phoneInput.value = '';
+                messageArea.style.display = 'none';
+                overlay.classList.add('show');
+
+                const handleSubmit = async () => {
+                    const code = codeInput.value.trim().toUpperCase();
+                    const phone = phoneInput.value.trim();
+                    
+                    if (!SECRET_CODES.includes(code)) {
+                        showMessage('Mã không hợp lệ. Vui lòng thử lại.', 'secret-code-message-area');
+                        codeInput.classList.add('error');
+                        return;
+                    }
+
+                    const success = await submitData(phone, code);
+                    if(success) {
+                        overlay.classList.remove('show');
+                        showSuccessScreen();
+                        startConfetti();
+                    }
+                };
+
+                const handleCancel = () => {
+                    overlay.classList.remove('show');
+                };
+
+                submitBtn.onclick = handleSubmit;
+                cancelBtn.onclick = handleCancel;
+                codeInput.oninput = () => codeInput.classList.remove('error');
+                phoneInput.oninput = () => phoneInput.classList.remove('error');
+            }
+
+            async function togglePromo() {
+                if (state.hasStockRunOut) {
+                    const confirmed = await showCustomConfirm('Bạn có chắc muốn BẬT LẠI chương trình ưu đãi không?');
+                    if (confirmed) {
+                        localStorage.removeItem('promoState');
+                        window.location.reload();
+                    }
+                } else {
+                     const confirmed = await showCustomConfirm('Bạn có chắc muốn TẠM DỪNG chương trình ưu đãi không?');
+                     if (confirmed) {
+                        if (socialProofInterval) clearInterval(socialProofInterval);
+                        state.hasStockRunOut = true;
+                        saveState();
+                        updateAdminPanel();
+                     }
+                }
+            }
+
+            let logoClickCount = 0;
+            let logoClickTimer;
+
+            function updateAdminPanel() {
+                if (state.hasStockRunOut) {
+                    DOMElements.promoStatusLabel.textContent = 'Trạng thái: Đã tạm dừng';
+                    DOMElements.togglePromoBtn.textContent = 'BẬT LẠI ƯU ĐÃI';
+                    DOMElements.togglePromoBtn.className = 'off';
+                } else {
+                    DOMElements.promoStatusLabel.textContent = 'Trạng thái: Đang chạy';
+                    DOMElements.togglePromoBtn.textContent = 'TẠM DỪNG ƯU ĐÃI';
+                    DOMElements.togglePromoBtn.className = 'on';
+                }
+            }
+
+            function handleLogoClick() {
+                logoClickCount++;
+                clearTimeout(logoClickTimer);
+                logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500); 
+
+                if (logoClickCount === 5) {
+                    updateAdminPanel();
+                    DOMElements.adminPanel.classList.add('show');
+                    logoClickCount = 0;
+                }
+            }
+
+            DOMElements.closeAdminBtn.addEventListener('click', () => {
+                DOMElements.adminPanel.classList.remove('show');
+            });
+
+            DOMElements.togglePromoBtn.addEventListener('click', togglePromo);
+
+            // --- INITIALIZATION ---
+            function init() {
+                loadState();
+                renderInitialView();
+            }
+
+            init();
 
         })();
     </script>
