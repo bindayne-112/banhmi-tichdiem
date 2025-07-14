@@ -934,7 +934,7 @@
                     } else if (err.message.includes('Failed to fetch')) {
                         errorMessage = `Lỗi mạng hoặc kết nối. Vui lòng kiểm tra lại đường truyền và thử lại.`
                     } else {
-                        errorMessage = `Đã có lỗi xảy ra: ${err.message}. Vui lòng thử lại.`
+                        errorMessage = ` ${err.message}. Vui lòng thử lại.`
                     }
                     showMessage(errorMessage, messageAreaId);
                     toggleButtonLoading(false, btnId);
