@@ -301,10 +301,24 @@
         }
 
         .message-area {
-            margin-top: 15px; padding: 15px; border-radius: 12px;
-            display: none; animation: slideIn 0.4s ease-out;
-            font-weight: 600; line-height: 1.6;
-            background-color: #FEE2E2; color: var(--error-color);
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            line-height: 1.5;
+            background-color: #FFFBEB;
+            color: #92400E;
+            border: 1px solid #FEEBCB;
+            animation: slideIn 0.4s ease-out;
+        }
+        .message-area svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            stroke: #D97706;
         }
         @keyframes slideIn {
             from { opacity: 0; transform: scale(0.95); }
@@ -348,17 +362,45 @@
             border-radius: 10px;
             font-weight: 700;
             text-decoration: none;
-            margin-top: 20px;
+            margin-top: 10px;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 15px -5px rgba(24, 119, 242, 0.5);
+            animation: tada 2.5s ease-in-out infinite;
         }
+        
+        @keyframes tada {
+            from {
+                transform: scale3d(1, 1, 1);
+            }
+            10%, 20% {
+                transform: scale3d(0.95, 0.95, 0.95) rotate3d(0, 0, 1, -5deg);
+            }
+            30%, 50%, 70%, 90% {
+                transform: scale3d(1.05, 1.05, 1.05) rotate3d(0, 0, 1, 5deg);
+            }
+            40%, 60%, 80% {
+                transform: scale3d(1.05, 1.05, 1.05) rotate3d(0, 0, 1, -5deg);
+            }
+            to {
+                transform: scale3d(1, 1, 1);
+            }
+        }
+
         .fb-button:hover {
-            transform: translateY(-3px);
+            transform: translateY(-3px) scale(1.03);
             box-shadow: 0 6px 20px -5px rgba(24, 119, 242, 0.6);
+            animation-play-state: paused;
         }
         .fb-button svg {
             width: 24px;
             height: 24px;
+        }
+        
+        .follow-us-prompt {
+            font-weight: 600;
+            color: var(--text-color);
+            margin-top: 25px;
+            font-size: 0.95rem;
         }
 
         .confetti {
@@ -522,6 +564,12 @@
             color: var(--text-color);
             font-weight: 600;
         }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
         .modal-buttons button, .modal-content button {
             padding: 10px 25px;
             border: none;
@@ -531,7 +579,7 @@
             transition: transform 0.2s;
             font-family: 'Quicksand', sans-serif;
             font-size: 1rem;
-            margin: 0 10px;
+            margin: 0;
         }
         #custom-confirm-yes, #secret-code-submit {
             background-color: var(--primary-color);
@@ -673,7 +721,10 @@
             </div>
             <div id="secret-code-message-area" class="message-area" style="margin-bottom: 20px;"></div>
             <div class="modal-buttons">
-                <button id="secret-code-submit">Xác nhận</button>
+                <button id="secret-code-submit" class="submit-btn">
+                    <span id="btnTextSecret">Xác nhận</span>
+                    <span id="loadingSpinnerSecret" style="display: none;" class="loading-spinner"></span>
+                </button>
                 <button id="secret-code-cancel">Hủy</button>
             </div>
         </div>
@@ -695,7 +746,7 @@
             };
 
             const API_URL = "https://script.google.com/macros/s/AKfycbxo60ow1zbBdEl-evqiZJEdGdo30epvCd4j66rjprIzfHnF5tXS0DA7eglB5eln8Tly0g/exec";
-            const SECRET_CODES = ['MYANH', 'CHIVY', 'MAIVY', 'CHIBAO', 'KOL12'];
+            const SECRET_CODES = ['KOL10', 'ONGKOIVIP', 'BANHMI7K', 'FOODIDANANG', 'REVIEWBUNRIEUCUA'];
 
             let state = {};
             let socialProofInterval;
@@ -840,19 +891,21 @@
             // --- DATA SUBMISSION ---
             async function submitData(phone, secretCode = null) {
                 const isSecretSubmission = !!secretCode;
+                const btnId = isSecretSubmission ? 'secret-code-submit' : 'submitBtn';
+                const messageAreaId = isSecretSubmission ? 'secret-code-message-area' : 'message-area';
                 const phoneInput = document.getElementById(isSecretSubmission ? 'secret-code-phone' : 'phone');
-                const messageArea = document.getElementById(isSecretSubmission ? 'secret-code-message-area' : 'message-area');
+                const messageArea = document.getElementById(messageAreaId);
                 
                 phoneInput.classList.remove('error');
                 if(messageArea) messageArea.style.display = 'none';
 
                 if (!/^0[0-9]{9}$/.test(phone)) {
-                    showMessage("Số điện thoại không hợp lệ.", isSecretSubmission ? 'secret-code-message-area' : 'message-area');
+                    showMessage("Số điện thoại không hợp lệ.", messageAreaId);
                     phoneInput.classList.add('error');
                     return false;
                 }
                 
-                toggleButtonLoading(true, isSecretSubmission ? 'secret-code-submit' : 'submitBtn');
+                toggleButtonLoading(true, btnId);
 
                 try {
                     const payload = { 
@@ -875,14 +928,16 @@
                     return true;
 
                 } catch (err) {
-                    let errorMessage = `Đã có lỗi xảy ra. Vui lòng thử lại.`;
-                    if (err.message.includes('Failed to fetch')) {
+                    let errorMessage;
+                    if (err.message.includes("SĐT này đã sử dụng mã ưu đãi này rồi")) {
+                        errorMessage = "SĐT này đã sử dụng mã ưu đãi này rồi !";
+                    } else if (err.message.includes('Failed to fetch')) {
                         errorMessage = `Lỗi mạng hoặc kết nối. Vui lòng kiểm tra lại đường truyền và thử lại.`
                     } else {
                         errorMessage = `Đã có lỗi xảy ra: ${err.message}. Vui lòng thử lại.`
                     }
-                    showMessage(errorMessage, isSecretSubmission ? 'secret-code-message-area' : 'message-area');
-                    toggleButtonLoading(false, isSecretSubmission ? 'secret-code-submit' : 'submitBtn');
+                    showMessage(errorMessage, messageAreaId);
+                    toggleButtonLoading(false, btnId);
                     return false;
                 }
             }
@@ -905,8 +960,11 @@
             function showMessage(message, areaId = 'message-area') {
                 const messageArea = document.getElementById(areaId);
                 if(!messageArea) return;
-                messageArea.textContent = message;
-                messageArea.style.display = 'block';
+                messageArea.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span>${message}</span>
+                `;
+                messageArea.style.display = 'flex';
             }
 
             function toggleButtonLoading(isLoading, btnId = 'submitBtn') {
@@ -935,6 +993,11 @@
                         <p class="instructions">
                             ƯU ĐÃI sẽ được gửi đến Zalo của bạn trong THỜI GIAN SỚM NHẤT. Vui lòng kiểm tra tin nhắn từ BÁNH MÌ ÔNG KÒI và đến cửa hàng để nhận ưu đãi nhoa !
                         </p>
+                        <p class="follow-us-prompt">Psst... Đừng bỏ lỡ ưu đãi nào khác! Theo dõi chúng tôi ngay:</p>
+                        <a href="https://www.facebook.com/BanhMiOngKoi" target="_blank" class="fb-button">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.03998C6.48 2.03998 2 6.51998 2 12.04C2 17.08 5.64 21.22 10.44 21.96V14.88H7.88V12.04H10.44V9.83998C10.44 7.29998 11.96 5.95998 14.22 5.95998C15.32 5.95998 16.46 6.15998 16.46 6.15998V8.63998H15.18C13.88 8.63998 13.56 9.35998 13.56 10.16V12.04H16.34L15.88 14.88H13.56V22C18.36 21.24 22 17.08 22 12.04C22 6.51998 17.52 2.03998 12 2.03998Z"></path></svg>
+                            <span>THEO DÕI FANPAGE</span>
+                        </a>
                     </div>
                 `;
             }
@@ -953,6 +1016,7 @@
                         <p class="instructions" style="background-color: #FFFBEB; margin-bottom: 20px; border: 1px solid #FEEBCB;">
                            Chúng tôi đã lưu lại SĐT của bạn. BÁNH MÌ ÔNG KÒI sẽ <strong>ưu tiên liên hệ</strong> với bạn ngay khi có chương trình ưu đãi mới.
                         </p>
+                         <p class="follow-us-prompt">Psst... Đừng bỏ lỡ ưu đãi nào khác! Theo dõi chúng tôi ngay:</p>
                          <a href="https://www.facebook.com/BanhMiOngKoi" target="_blank" class="fb-button">
                             <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.03998C6.48 2.03998 2 6.51998 2 12.04C2 17.08 5.64 21.22 10.44 21.96V14.88H7.88V12.04H10.44V9.83998C10.44 7.29998 11.96 5.95998 14.22 5.95998C15.32 5.95998 16.46 6.15998 16.46 6.15998V8.63998H15.18C13.88 8.63998 13.56 9.35998 13.56 10.16V12.04H16.34L15.88 14.88H13.56V22C18.36 21.24 22 17.08 22 12.04C22 6.51998 17.52 2.03998 12 2.03998Z"></path></svg>
                             <span>THEO DÕI ĐỂ KHÔNG BỎ LỠ</span>
