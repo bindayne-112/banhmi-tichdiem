@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ưu Đãi Đặc Biệt - Bánh Mì Ông Kòi</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap');
         :root {
@@ -24,6 +27,7 @@
             margin: 0;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
             padding: 20px 15px;
             box-sizing: border-box;
@@ -730,7 +734,6 @@
         </div>
     </div>
 
-
     <script>
         (function() {
             const DOMElements = {
@@ -738,20 +741,19 @@
                 confettiContainer: document.getElementById('confetti-container'),
                 toastContainer: document.getElementById('social-proof-toast-container'),
                 card: document.querySelector('.card'),
-                // Admin Panel Elements
                 adminPanel: document.getElementById('admin-panel'),
                 togglePromoBtn: document.getElementById('toggle-promo-btn'),
                 promoStatusLabel: document.getElementById('promo-status-label'),
                 closeAdminBtn: document.getElementById('close-admin-btn'),
             };
-
-            const API_URL = "https://script.google.com/macros/s/AKfycbxo60ow1zbBdEl-evqiZJEdGdo30epvCd4j66rjprIzfHnF5tXS0DA7eglB5eln8Tly0g/exec";
+            
+            // ✅ ĐÃ CẬP NHẬT URL APPS SCRIPT MỚI
+            const API_URL = "https://script.google.com/macros/s/AKfycbwDPKfL0arnWBWA5VBSypzdhTWZl_urVK74sDCf0V5nkGdvhxanVjKgqViUnwBxtAi3Cg/exec";
             const SECRET_CODES = ['MYANH', 'CHIVY', 'CHIBAO', 'MAIVY', 'KOL12'];
 
             let state = {};
             let socialProofInterval;
 
-            // --- STATE MANAGEMENT ---
             function saveState() {
                 localStorage.setItem('promoState', JSON.stringify(state));
             }
@@ -771,7 +773,6 @@
                 }
             }
             
-            // --- RENDER FUNCTIONS ---
             function renderInitialView() {
                 DOMElements.formContainer.innerHTML = `
                     <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo" id="logo"/>
@@ -801,7 +802,6 @@
                 startSocialProof();
             }
             
-            // --- EVENT LISTENERS ---
             function addEventListeners() {
                 const phoneInput = document.getElementById('phone');
                 document.getElementById('submitBtn').addEventListener('click', handleNormalSubmit);
@@ -824,14 +824,6 @@
                 document.getElementById('secret-code-trigger').addEventListener('click', showSecretCodeModal);
             }
 
-            // --- SOCIAL PROOF ---
-            function generateFakePhone() {
-                const prefixes = ['090', '091', '093', '098', '086', '033', '035', '037', '038', '039'];
-                const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-                const lastDigits = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-                return `${prefix}*****${lastDigits}`;
-            }
-            
             function isPeakTime() {
                 const now = new Date();
                 const hours = now.getHours();
@@ -839,6 +831,13 @@
                 const isLunchPeak = hours >= 11 && hours < 14;
                 const isEveningPeak = hours >= 17 && hours < 20;
                 return isMorningPeak || isLunchPeak || isEveningPeak;
+            }
+            
+            function generateFakePhone() {
+                const prefixes = ['090', '091', '093', '098', '086', '033', '035', '037', '038', '039'];
+                const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                const lastDigits = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+                return `${prefix}*****${lastDigits}`;
             }
 
             function showSocialProofToast() {
@@ -888,7 +887,6 @@
                 socialProofInterval = setInterval(runCheck, Math.random() * 8000 + 9000);
             }
             
-            // --- DATA SUBMISSION ---
             async function submitData(phone, secretCode = null) {
                 const isSecretSubmission = !!secretCode;
                 const btnId = isSecretSubmission ? 'secret-code-submit' : 'submitBtn';
@@ -911,6 +909,7 @@
                     const payload = { 
                         action: 'savePromoPhone', 
                         phone: phone,
+                        isPaused: state.hasStockRunOut,
                         ...(secretCode && { code: secretCode })
                     };
 
@@ -919,18 +918,22 @@
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify(payload)
                     });
-
-                    if (!res.ok) throw new Error('Lỗi kết nối đến máy chủ.');
                     
                     const result = await res.json();
-                    if (result.status !== 'SUCCESS') throw new Error(result.message || 'Lỗi không xác định.');
+                    if (result.status !== 'SUCCESS') {
+                        throw new Error(result.message || 'Lỗi không xác định từ máy chủ.');
+                    }
                     
                     return true;
 
                 } catch (err) {
                     let errorMessage;
-                    if (err.message.includes("SĐT này đã sử dụng mã ưu đãi này rồi")) {
-                        errorMessage = "SĐT này đã sử dụng mã ưu đãi này rồi !";
+                    if (err.message.includes("PHONE_DUPLICATE")) {
+                        errorMessage = "Số điện thoại này đã nhận ưu đãi rồi!";
+                    } else if (err.message.includes("ALREADY_PENDING")) {
+                        errorMessage = "Bạn đã ở trong danh sách chờ. Chúng tôi sẽ thông báo khi có ưu đãi!";
+                    } else if (err.message.includes("SAVED_AS_PENDING")) {
+                        throw err;
                     } else if (err.message.includes('Failed to fetch')) {
                         errorMessage = `Lỗi mạng hoặc kết nối. Vui lòng kiểm tra lại đường truyền và thử lại.`
                     } else {
@@ -944,19 +947,19 @@
             
             async function handleNormalSubmit() {
                 const phone = document.getElementById('phone').value.trim();
-                const success = await submitData(phone);
-                if(success) {
-                    const currentSavedState = JSON.parse(localStorage.getItem('promoState')) || state;
-                    if (!currentSavedState.hasStockRunOut) {
-                        showSuccessScreen();
+                try {
+                    const success = await submitData(phone);
+                    if (success) {
+                        showSuccessScreen(phone);
                         startConfetti();
-                    } else {
+                    }
+                } catch (err) {
+                    if (err.message.includes("SAVED_AS_PENDING")) {
                         showBaitScreen();
                     }
                 }
             }
 
-            // --- UI DISPLAY FUNCTIONS ---
             function showMessage(message, areaId = 'message-area') {
                 const messageArea = document.getElementById(areaId);
                 if(!messageArea) return;
@@ -978,20 +981,22 @@
                 if(loadingSpinner) loadingSpinner.style.display = isLoading ? 'inline-block' : 'none';
             }
             
-            function showSuccessScreen() {
+            function showSuccessScreen(phone) {
                 if(socialProofInterval) clearInterval(socialProofInterval);
                 DOMElements.card.style.padding = "20px";
                 DOMElements.card.style.marginTop = "60px";
+                
                 DOMElements.formContainer.innerHTML = `
                     <div class="result-screen">
                         <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo" style="margin-top: -75px;"/>
                         <h2>BẠN ĐÃ NHẬN ĐƯỢC ƯU ĐÃI!</h2>
-                        <div class="promo-details">
-                            <p>COMBO BÁNH BAO XIÊN NƯỚNG</p>
-                            <div class="price">7.000 Đ</div>
+
+                        <div id="qrcode-container" style="padding: 15px; background: white; border-radius: 10px; display: inline-block; margin-bottom: 20px; border: 2px solid var(--primary-color);">
+                            <div id="qrcode"></div>
                         </div>
+
                         <p class="instructions">
-                            ƯU ĐÃI sẽ được gửi đến Zalo của bạn trong THỜI GIAN SỚM NHẤT. Vui lòng kiểm tra tin nhắn từ BÁNH MÌ ÔNG KÒI và đến cửa hàng để nhận ưu đãi nhoa !
+                            Vui lòng <strong>đưa mã QR này cho nhân viên</strong> tại quầy để nhận Combo Bánh Bao Xiên Nướng với giá chỉ <strong>7.000Đ</strong>!
                         </p>
                         <p class="follow-us-prompt">Psst... Đừng bỏ lỡ ưu đãi nào khác! Theo dõi chúng tôi ngay:</p>
                         <a href="https://www.facebook.com/BanhMiOngKoi" target="_blank" class="fb-button">
@@ -1000,6 +1005,18 @@
                         </a>
                     </div>
                 `;
+
+                const qrcodeElement = document.getElementById('qrcode');
+                if (qrcodeElement && typeof QRCode !== 'undefined') {
+                    new QRCode(qrcodeElement, {
+                        text: `${phone}-UUDAI7K`,
+                        width: 200,
+                        height: 200,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }
             }
 
             function showBaitScreen() {
@@ -1012,7 +1029,7 @@
                         <div class="promo-image-wrapper" style="margin-top: 15px;">
                             <img src="https://i.postimg.cc/qvKqCBJ0/Thi-t-k-ch-a-c-t-n.png" alt="Combo Bánh Bao Xiên Nướng" class="promo-image"/>
                         </div>
-                        <h2 style="font-size: 1.5rem; color: var(--dark-color); text-transform: uppercase; margin-top: 0;">RẤT TIẾC, BẠN ĐÃ CHẬM MẤT RỒI!</h2>
+                        <h2 style="font-size: 1.5rem; color: var(--dark-color); text-transform: uppercase; margin-top: 0;">RẤT TIẾC, ƯU ĐÃI TẠM HẾT!</h2>
                         <p class="instructions" style="background-color: #FFFBEB; margin-bottom: 20px; border: 1px solid #FEEBCB;">
                            Chúng tôi đã lưu lại SĐT của bạn. BÁNH MÌ ÔNG KÒI sẽ <strong>ưu tiên liên hệ</strong> với bạn ngay khi có chương trình ưu đãi mới.
                         </p>
@@ -1039,7 +1056,6 @@
                 }, 6000);
             }
 
-            // --- MODAL & ADMIN LOGIC ---
             function showCustomConfirm(msg) {
                 return new Promise((resolve) => {
                     const overlay = document.getElementById('custom-confirm-overlay');
@@ -1083,11 +1099,18 @@
                         return;
                     }
 
-                    const success = await submitData(phone, code);
-                    if(success) {
-                        overlay.classList.remove('show');
-                        showSuccessScreen();
-                        startConfetti();
+                    try {
+                        const success = await submitData(phone, code);
+                         if(success) {
+                            overlay.classList.remove('show');
+                            showSuccessScreen(phone);
+                            startConfetti();
+                        }
+                    } catch(err) {
+                        if (err.message.includes("SAVED_AS_PENDING")) {
+                            overlay.classList.remove('show');
+                            showBaitScreen();
+                        }
                     }
                 };
 
@@ -1152,7 +1175,6 @@
 
             DOMElements.togglePromoBtn.addEventListener('click', togglePromo);
 
-            // --- INITIALIZATION ---
             function init() {
                 loadState();
                 renderInitialView();
