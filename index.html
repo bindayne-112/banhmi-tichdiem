@@ -226,18 +226,18 @@
              animation: slideUp 0.7s 1.8s cubic-bezier(0.25, 1, 0.5, 1) both;
              transition: transform 0.4s ease;
         }
-        input[type="tel"], input[type="text"] {
+        input[type="tel"], input[type="text"], input[type="password"] {
             width: 100%; padding: 18px; border: 2px solid #E5E7EB;
             border-radius: var(--radius); font-size: 1.2rem;
             font-family: 'Quicksand', sans-serif; font-weight: 700;
             box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s;
             text-align: center;
         }
-        input[type="tel"]:focus, input[type="text"]:focus {
+        input[type="tel"]:focus, input[type="text"]:focus, input[type="password"]:focus {
             outline: none; border-color: var(--primary-color);
             box-shadow: 0 0 0 4px rgba(252, 104, 6, 0.1);
         }
-        input[type="tel"].error, input[type="text"].error {
+        input[type="tel"].error, input[type="text"].error, input[type="password"].error {
             border-color: var(--error-color);
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
@@ -585,18 +585,18 @@
             font-size: 1rem;
             margin: 0;
         }
-        #custom-confirm-yes, #secret-code-submit {
+        #custom-confirm-yes, #secret-code-submit, #admin-login-submit {
             background-color: var(--primary-color);
             color: white;
         }
-        #custom-confirm-no, #secret-code-cancel {
+        #custom-confirm-no, #secret-code-cancel, #admin-login-cancel {
             background-color: #bdc3c7;
             color: white;
         }
         .modal-buttons button:hover, .modal-content button:hover {
             transform: scale(1.05);
         }
-        #secret-code-modal .input-group {
+        #secret-code-modal .input-group, #admin-login-modal .input-group {
             margin-bottom: 15px;
         }
         
@@ -734,6 +734,24 @@
         </div>
     </div>
 
+    <!-- ⭐ MODAL ĐĂNG NHẬP ADMIN MỚI -->
+    <div id="admin-login-overlay" class="modal-overlay">
+        <div id="admin-login-modal" class="modal-content">
+            <p>Xác thực Quản trị viên</p>
+            <div class="input-group">
+                <input type="password" id="admin-password-input" placeholder="Nhập mật khẩu">
+            </div>
+            <div id="admin-login-message-area" class="message-area" style="margin-bottom: 20px;"></div>
+            <div class="modal-buttons">
+                <button id="admin-login-submit" class="submit-btn">
+                    <span id="btnTextAdminLogin">Đăng nhập</span>
+                    <span id="loadingSpinnerAdminLogin" style="display: none;" class="loading-spinner"></span>
+                </button>
+                <button id="admin-login-cancel">Hủy</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function() {
             const DOMElements = {
@@ -747,15 +765,16 @@
                 closeAdminBtn: document.getElementById('close-admin-btn'),
             };
             
-            const API_URL = "https://script.google.com/macros/s/AKfycbzBZSwO-pMVuCn2oAKtE5iIU4mnjLDC3WDMkVukwmxh6a9YJknnshRPQ3E4Auz1OAPguA/exec";
+            // ✅ ĐÃ CẬP NHẬT URL APPS SCRIPT MỚI CỦA BẠN
+            const API_URL = "https://script.google.com/macros/s/AKfycbzIet5VtHvqjxi6ibspbozdhMIv_IdMvfoxRG3G5l1dS7YcSgPCxhYpGHN5yGT31seHeg/exec";
             const SECRET_CODES = ['MYANH', 'CHIVY', 'CHIBAO', 'MAIVY', 'KOL12'];
 
             let state = {
-                isPromoPaused: false // Trạng thái này sẽ được lấy khi admin mở bảng điều khiển
+                isPromoPaused: false,
+                adminPassword: null // Lưu mật khẩu sau khi xác thực thành công
             };
             let socialProofInterval;
 
-            // ⭐ LOGIC MỚI: Luôn hiển thị form nhập SĐT ban đầu
             function renderInitialView() {
                 DOMElements.formContainer.innerHTML = `
                     <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo" id="logo"/>
@@ -787,7 +806,7 @@
             
             function addFormEventListeners() {
                 const phoneInput = document.getElementById('phone');
-                document.getElementById('logo').addEventListener('click', handleLogoClick); // Gắn listener cho logo ở đây
+                document.getElementById('logo').addEventListener('click', handleLogoClick);
                 document.getElementById('submitBtn').addEventListener('click', handleNormalSubmit);
                 phoneInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') handleNormalSubmit();
@@ -819,7 +838,7 @@
             }
 
             function showSocialProofToast() {
-                if (state.isPromoPaused) { // Vẫn giữ kiểm tra này để dừng toast khi admin tắt
+                if (state.isPromoPaused) {
                     if(socialProofInterval) clearInterval(socialProofInterval);
                     return;
                 }
@@ -846,25 +865,25 @@
             }
 
             function startSocialProof() {
-                // Social proof sẽ luôn chạy ban đầu
-                const runCheck = () => {
-                    if (isPeakTime() && Math.random() < 0.4) {
-                        const burstCount = Math.floor(Math.random() * 2) + 2;
-                        for (let i = 0; i < burstCount; i++) {
-                            setTimeout(() => {
-                                showSocialProofToast();
-                            }, i * 800);
+                fetchInitialState().then(() => {
+                    if (state.isPromoPaused) return;
+                    const runCheck = () => {
+                        if (isPeakTime() && Math.random() < 0.4) {
+                            const burstCount = Math.floor(Math.random() * 2) + 2;
+                            for (let i = 0; i < burstCount; i++) {
+                                setTimeout(() => {
+                                    showSocialProofToast();
+                                }, i * 800);
+                            }
+                        } else {
+                            showSocialProofToast();
                         }
-                    } else {
-                        showSocialProofToast();
-                    }
-                };
-
-                setTimeout(runCheck, 3500);
-                socialProofInterval = setInterval(runCheck, Math.random() * 8000 + 9000);
+                    };
+                    setTimeout(runCheck, 3500);
+                    socialProofInterval = setInterval(runCheck, Math.random() * 8000 + 9000);
+                });
             }
             
-            // Logic gửi dữ liệu không thay đổi, server sẽ quyết định tất cả
             async function submitData(phone, secretCode = null) {
                 const isSecretSubmission = !!secretCode;
                 const btnId = isSecretSubmission ? 'secret-code-submit' : 'submitBtn';
@@ -910,7 +929,7 @@
                     } else if (err.message.includes("ALREADY_PENDING")) {
                         errorMessage = "Bạn đã ở trong danh sách chờ. Chúng tôi sẽ thông báo khi có ưu đãi!";
                     } else if (err.message.includes("SAVED_AS_PENDING")) {
-                        throw err; // Ném lỗi này để logic bên ngoài xử lý
+                        throw err;
                     } else if (err.message.includes('Failed to fetch')) {
                         errorMessage = `Lỗi mạng hoặc kết nối. Vui lòng kiểm tra lại đường truyền và thử lại.`
                     } else {
@@ -922,7 +941,6 @@
                 }
             }
             
-            // ⭐ LOGIC MỚI: Xử lý kết quả sau khi gửi
             async function handleNormalSubmit() {
                 const phone = document.getElementById('phone').value.trim();
                 try {
@@ -932,7 +950,6 @@
                         startConfetti();
                     }
                 } catch (err) {
-                    // Nếu lỗi là do "SAVED_AS_PENDING", lúc này mới hiện màn hình "tạm hết"
                     if (err.message.includes("SAVED_AS_PENDING")) {
                         showBaitScreen();
                     }
@@ -1116,7 +1133,11 @@
                     const res = await fetch(API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'setPromoStatus', status: newStatus })
+                        body: JSON.stringify({ 
+                            action: 'setPromoStatus', 
+                            status: newStatus,
+                            password: state.adminPassword 
+                        })
                     });
                     const result = await res.json();
 
@@ -1152,18 +1173,73 @@
                     DOMElements.togglePromoBtn.className = 'on';
                 }
             }
+            
+            function showAdminLoginModal() {
+                const overlay = document.getElementById('admin-login-overlay');
+                const passwordInput = document.getElementById('admin-password-input');
+                const submitBtn = document.getElementById('admin-login-submit');
+                const cancelBtn = document.getElementById('admin-login-cancel');
+                const messageArea = document.getElementById('admin-login-message-area');
 
-            // ⭐ LOGIC MỚI: Lấy trạng thái chỉ khi admin mở bảng điều khiển
-            async function handleLogoClick() {
+                passwordInput.value = '';
+                messageArea.style.display = 'none';
+                overlay.classList.add('show');
+
+                const handleSubmit = async () => {
+                    const password = passwordInput.value.trim();
+                    if (!password) {
+                        showMessage('Vui lòng nhập mật khẩu.', 'admin-login-message-area');
+                        return;
+                    }
+
+                    toggleButtonLoading(true, 'admin-login-submit');
+                    
+                    try {
+                        const res = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'verifyAdminPassword', password: password })
+                        });
+                        const result = await res.json();
+
+                        if (result.status === 'SUCCESS' && result.data.verified) {
+                            state.adminPassword = password;
+                            overlay.classList.remove('show');
+                            await fetchInitialState();
+                            updateAdminPanel();
+                            DOMElements.adminPanel.classList.add('show');
+                        } else {
+                            throw new Error(result.message);
+                        }
+                    } catch (err) {
+                        if (err.message.includes("INVALID_PASSWORD")) {
+                            showMessage('Mật khẩu không chính xác.', 'admin-login-message-area');
+                        } else {
+                            showMessage('Lỗi: ' + err.message, 'admin-login-message-area');
+                        }
+                    } finally {
+                        toggleButtonLoading(false, 'admin-login-submit');
+                    }
+                };
+                
+                const handleCancel = () => overlay.classList.remove('show');
+
+                submitBtn.onclick = handleSubmit;
+                cancelBtn.onclick = handleCancel;
+                passwordInput.oninput = () => messageArea.style.display = 'none';
+                passwordInput.onkeypress = (e) => {
+                    if (e.key === 'Enter') handleSubmit();
+                };
+            }
+
+            function handleLogoClick() {
                 logoClickCount++;
                 clearTimeout(logoClickTimer);
                 logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1500); 
 
                 if (logoClickCount === 5) {
                     logoClickCount = 0;
-                    await fetchInitialState(); // Lấy trạng thái mới nhất từ server
-                    updateAdminPanel();
-                    DOMElements.adminPanel.classList.add('show');
+                    showAdminLoginModal();
                 }
             }
 
@@ -1187,10 +1263,7 @@
             }
             
             function init() {
-                // Không cần lấy trạng thái ban đầu nữa, chỉ cần render form
                 renderInitialView();
-
-                // Gắn listener cho các nút của admin panel
                 DOMElements.closeAdminBtn.addEventListener('click', () => DOMElements.adminPanel.classList.remove('show'));
                 DOMElements.togglePromoBtn.addEventListener('click', togglePromo);
             }
