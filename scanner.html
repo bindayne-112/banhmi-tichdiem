@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quét Mã Ưu Đãi - Bánh Mì Ông Kòi</title>
+    
+    <!-- Thư viện quét mã QR -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Thư viện âm thanh -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&display=swap');
+        :root {
+            --primary-color: #fc6806;
+            --background-color: #f0f2f5;
+            --text-color: #333;
+            --white-color: #FFFFFF;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --radius: 20px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            color: var(--text-color);
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            box-shadow: var(--shadow);
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin: 10px 0 0 0;
+        }
+        #reader {
+            width: 100%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 5px solid var(--white-color);
+            box-shadow: var(--shadow);
+            background: #e9ecef;
+            margin-bottom: 20px;
+            position: relative;
+            display: none; /* Ẩn ban đầu */
+        }
+        #reader video {
+            width: 100% !important;
+            height: auto !important;
+            display: block;
+        }
+        #scan-button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'Quicksand', sans-serif;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: var(--primary-color);
+            color: var(--white-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(252, 104, 6, 0.4);
+            display: inline-block;
+        }
+        #scan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(252, 104, 6, 0.5);
+        }
+        #scan-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .result-container {
+            margin-top: 20px;
+            padding: 25px;
+            border-radius: var(--radius);
+            background-color: var(--white-color);
+            box-shadow: var(--shadow);
+            display: none; /* Ẩn ban đầu */
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .result-container.success { border-top: 8px solid var(--success-color); }
+        .result-container.error { border-top: 8px solid var(--error-color); }
+        .result-container.warning { border-top: 8px solid var(--warning-color); }
+        .result-container.info { border-top: 8px solid var(--info-color); }
+
+        .result-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        .result-container.success .result-title { color: var(--success-color); }
+        .result-container.error .result-title { color: var(--error-color); }
+        .result-container.warning .result-title { color: var(--warning-color); }
+        .result-container.info .result-title { color: var(--info-color); }
+
+        .result-message {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+        }
+        .result-actions button {
+            flex-grow: 1;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Quicksand', sans-serif;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .result-actions button:hover {
+            transform: scale(1.05);
+        }
+        .result-actions button.confirm-btn {
+            background-color: var(--success-color);
+            color: var(--white-color);
+        }
+        .result-actions button.cancel-btn {
+            background-color: #95a5a6;
+            color: var(--white-color);
+        }
+        .result-actions button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: none; /* Ẩn ban đầu */
+            margin: 20px auto 0;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi">
+            <h1>Trình Quét Mã Ưu Đãi</h1>
+        </div>
+
+        <div id="reader"></div>
+        <button id="scan-button">Bắt đầu quét</button>
+
+        <div id="loading-spinner" class="loading-spinner"></div>
+        <div id="result-container" class="result-container">
+            <div id="result-icon" class="result-icon"></div>
+            <h2 id="result-title"></h2>
+            <p id="result-message"></p>
+            <div id="result-actions" class="result-actions"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const DOMElements = {
+            reader: document.getElementById('reader'),
+            scanButton: document.getElementById('scan-button'),
+            resultContainer: document.getElementById('result-container'),
+            resultIcon: document.getElementById('result-icon'),
+            resultTitle: document.getElementById('result-title'),
+            resultMessage: document.getElementById('result-message'),
+            resultActions: document.getElementById('result-actions'),
+            loadingSpinner: document.getElementById('loading-spinner'),
+        };
+
+        const API_URL = "https://script.google.com/macros/s/AKfycbzxXcMiyzLBe5lFpnq64yX1CdDmcmQjqH9wZFdE4UAAhUMIyk3gS9YmNJfZUDmkMMzleQ/exec";
+        let html5QrCode;
+        let lastScannedCode = null;
+
+        const successSound = new Tone.Synth({ oscillator: { type: 'sine' } }).toDestination();
+        const errorSound = new Tone.Synth({ oscillator: { type: 'square' } }).toDestination();
+        const infoSound = new Tone.Synth({ oscillator: { type: 'triangle' } }).toDestination();
+
+        const ICONS = {
+            SUCCESS: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--success-color)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>`,
+            ERROR: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--error-color)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>`,
+            WARNING: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--warning-color)"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"></path></svg>`,
+            INFO: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--info-color)"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg>`
+        };
+
+        function showUi(state) {
+            DOMElements.scanButton.style.display = (state === 'idle') ? 'inline-block' : 'none';
+            DOMElements.reader.style.display = (state === 'scanning') ? 'block' : 'none';
+            DOMElements.loadingSpinner.style.display = (state === 'processing') ? 'block' : 'none';
+            DOMElements.resultContainer.style.display = (state === 'result') ? 'flex' : 'none';
+        }
+
+        function displayResult(type, title, message, actionsHtml = '') {
+            DOMElements.resultContainer.className = `result-container ${type}`;
+            DOMElements.resultIcon.innerHTML = ICONS[type.toUpperCase()] || ICONS.ERROR;
+            DOMElements.resultTitle.textContent = title;
+            DOMElements.resultMessage.innerHTML = message;
+            DOMElements.resultActions.innerHTML = actionsHtml;
+            showUi('result');
+        }
+        
+        async function onScanSuccess(decodedText) {
+            if (html5QrCode.isScanning) {
+                await html5QrCode.stop();
+            }
+            showUi('processing');
+            lastScannedCode = decodedText;
+
+            try {
+                const payload = { action: 'checkQRCodeStatus', qrCode: decodedText };
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.status !== 'SUCCESS') throw new Error(result.message);
+
+                const statusData = result.data;
+                if (statusData.status === 'VALID') {
+                    infoSound.triggerAttackRelease("E4", "0.2s");
+                    const actions = `
+                        <button id="confirm-use-btn" class="confirm-btn">✅ Sử Dụng Mã</button>
+                        <button id="cancel-use-btn" class="cancel-btn">❌ Hủy</button>
+                    `;
+                    displayResult('info', 'MÃ HỢP LỆ', `SĐT Khách hàng: <strong>${statusData.phone}</strong><br>Xác nhận sử dụng mã ưu đãi này?`, actions);
+                    document.getElementById('confirm-use-btn').addEventListener('click', handleConfirmUse);
+                    document.getElementById('cancel-use-btn').addEventListener('click', resetToIdle);
+                } else if (statusData.status === 'DUPLICATE') {
+                    errorSound.triggerAttackRelease("G2", "0.2s");
+                    displayResult('warning', 'MÃ ĐÃ SỬ DỤNG!', `Mã của SĐT <strong>${statusData.phone}</strong> đã được dùng trước đó.`);
+                    setTimeout(resetToIdle, 4000);
+                } else { // NOT_FOUND
+                    errorSound.triggerAttackRelease("G2", "0.2s");
+                    displayResult('error', 'KHÔNG TÌM THẤY!', 'Mã không hợp lệ hoặc không có trong danh sách ưu đãi.');
+                    setTimeout(resetToIdle, 4000);
+                }
+            } catch (error) {
+                errorSound.triggerAttackRelease("G2", "0.2s");
+                let message = `Đã xảy ra lỗi không xác định. (${error.message})`;
+                if (error.message.includes("INVALID_FORMAT")) {
+                    message = 'Đây không phải là mã QR hợp lệ của chương trình.';
+                }
+                displayResult('error', 'LỖI!', message);
+                setTimeout(resetToIdle, 4000);
+            }
+        }
+
+        async function handleConfirmUse() {
+            showUi('processing');
+            try {
+                const payload = { action: 'useQRCode', qrCode: lastScannedCode };
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.status !== 'SUCCESS') throw new Error(result.message);
+                
+                successSound.triggerAttackRelease("C5", "0.5s");
+                displayResult('success', 'THÀNH CÔNG!', `Đã xác nhận sử dụng mã cho SĐT <strong>${result.data.phone}</strong>.`);
+            } catch (error) {
+                errorSound.triggerAttackRelease("G2", "0.2s");
+                let message = `Lỗi: ${error.message}`;
+                if (error.message.includes("DUPLICATE")) {
+                    message = "Lỗi: Mã này vừa được một người khác sử dụng.";
+                }
+                displayResult('error', 'SỬ DỤNG THẤT BẠI', message);
+            } finally {
+                setTimeout(resetToIdle, 4000);
+            }
+        }
+
+        function onScanFailure(error) { /* Bỏ qua lỗi này */ }
+
+        function resetToIdle() {
+            showUi('idle');
+        }
+
+        async function startScanning() {
+            showUi('scanning');
+            try {
+                await Tone.start();
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    onScanFailure
+                );
+            } catch (err) {
+                displayResult('error', 'LỖI CAMERA', 'Không thể truy cập camera. Vui lòng kiểm tra và cấp quyền sử dụng camera cho trình duyệt.');
+                setTimeout(resetToIdle, 4000);
+            }
+        }
+
+        function init() {
+            html5QrCode = new Html5Qrcode("reader");
+            DOMElements.scanButton.addEventListener('click', startScanning);
+            showUi('idle');
+        }
+
+        init();
+    });
+    </script>
+</body>
+</html>
