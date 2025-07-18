@@ -734,7 +734,7 @@
         </div>
     </div>
 
-    <!-- ⭐ MODAL ĐĂNG NHẬP ADMIN MỚI -->
+    <!-- MODAL ĐĂNG NHẬP ADMIN MỚI -->
     <div id="admin-login-overlay" class="modal-overlay">
         <div id="admin-login-modal" class="modal-content">
             <p>Xác thực Quản trị viên</p>
@@ -765,13 +765,14 @@
                 closeAdminBtn: document.getElementById('close-admin-btn'),
             };
             
-            // ✅ ĐÃ CẬP NHẬT URL APPS SCRIPT MỚI CỦA BẠN
-            const API_URL = "https://script.google.com/macros/s/AKfycbwOz0W4nxSlASjalING2f82bSY02sA2i-1ke7KBsVZcuZCIXbNFyVhvp71_DkP0KMEsWA/exec";
-            const SECRET_CODES = ['MYANH', 'CHIVY', 'CHIBAO', 'MAIVY', 'KOL12'];
+            // ⭐ ĐÃ CẬP NHẬT URL APPS SCRIPT MỚI CỦA BẠN
+            const API_URL = "https://script.google.com/macros/s/AKfycbzDhyBO6hSK4mFIhvlao0DoBHXVWXie9-SPzs49Mm8jvBHX7_qx5lRnNsqJOiophx8sQQ/exec";
+            
+            // ⭐ BẢO MẬT: Đã xóa mảng SECRET_CODES khỏi client. Việc kiểm tra sẽ do server thực hiện.
 
             let state = {
                 isPromoPaused: false,
-                adminPassword: null // Lưu mật khẩu sau khi xác thực thành công
+                adminPassword: null 
             };
             let socialProofInterval;
 
@@ -930,6 +931,11 @@
                         errorMessage = "Bạn đã ở trong danh sách chờ. Chúng tôi sẽ thông báo khi có ưu đãi!";
                     } else if (err.message.includes("SAVED_AS_PENDING")) {
                         throw err;
+                    } else if (err.message.includes("INVALID_SECRET_CODE")) {
+                        // ⭐ BẢO MẬT: Xử lý lỗi mã không hợp lệ từ server
+                        errorMessage = "Mã ưu đãi không hợp lệ.";
+                        const codeInput = document.getElementById('secret-code-input');
+                        if (codeInput) codeInput.classList.add('error');
                     } else if (err.message.includes('Failed to fetch')) {
                         errorMessage = `Lỗi mạng hoặc kết nối. Vui lòng kiểm tra lại đường truyền và thử lại.`
                     } else {
@@ -1085,15 +1091,13 @@
                 messageArea.style.display = 'none';
                 overlay.classList.add('show');
 
+                // ⭐ BẢO MẬT: Cập nhật hàm để gửi mã lên server kiểm tra
                 const handleSubmit = async () => {
                     const code = codeInput.value.trim().toUpperCase();
                     const phone = phoneInput.value.trim();
                     
-                    if (!SECRET_CODES.includes(code)) {
-                        showMessage('Mã không hợp lệ. Vui lòng thử lại.', 'secret-code-message-area');
-                        codeInput.classList.add('error');
-                        return;
-                    }
+                    // Không kiểm tra mã ở client nữa.
+                    // if (!SECRET_CODES.includes(code)) { ... } // ĐÃ XÓA
 
                     try {
                         const success = await submitData(phone, code);
@@ -1103,10 +1107,12 @@
                             startConfetti();
                         }
                     } catch(err) {
+                        // Lỗi SAVED_AS_PENDING vẫn được xử lý như cũ
                         if (err.message.includes("SAVED_AS_PENDING")) {
                             overlay.classList.remove('show');
                             showBaitScreen();
                         }
+                        // Các lỗi khác (INVALID_SECRET_CODE, PHONE_DUPLICATE,...) đã được xử lý trong hàm submitData
                     }
                 };
 
