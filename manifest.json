@@ -1,7 +1,7 @@
 {
   "name": "Bánh Mì Ông Kòi - Quét Mã",
   "short_name": "Ông Kòi Scan",
-  "start_url": ".",
+  "start_url": "./scanner.html",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#fc6806",
