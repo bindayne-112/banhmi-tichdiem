@@ -9,6 +9,9 @@
     <meta name="theme-color" content="#fc6806"/>
     <link rel="manifest" href="manifest.json">
 
+    <!-- TỐI ƯU: Báo cho trình duyệt kết nối sớm đến máy chủ Google -->
+    <link rel="preconnect" href="https://script.google.com">
+
     <!-- Thư viện quét mã QR -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <!-- Thư viện âm thanh -->
@@ -71,7 +74,6 @@
             position: relative;
             display: none; /* Ẩn ban đầu */
         }
-        /* NÂNG CẤP: Hoạt ảnh đường quét laser */
         #reader::after {
             content: '';
             display: block;
@@ -234,7 +236,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // NÂNG CẤP: Sử dụng hằng số để quản lý trạng thái và hành động
         const UI_STATES = {
             IDLE: 'idle',
             SCANNING: 'scanning',
@@ -289,7 +290,6 @@
             showUi(UI_STATES.RESULT);
         }
         
-        // NÂNG CẤP: Thêm nút "Quét Lại"
         function showScanAgainButton() {
             const actions = `<button id="scan-again-btn" class="scan-again-btn">🔄 Quét Lại</button>`;
             DOMElements.resultActions.innerHTML = actions;
@@ -327,11 +327,11 @@
                 } else if (statusData.status === 'DUPLICATE') {
                     errorSound.triggerAttackRelease("G2", "0.2s");
                     displayResult('warning', 'MÃ ĐÃ SỬ DỤNG!', `Mã của SĐT <strong>${statusData.phone}</strong> đã được dùng trước đó.`);
-                    showScanAgainButton(); // Thay thế setTimeout
+                    showScanAgainButton();
                 } else { // NOT_FOUND
                     errorSound.triggerAttackRelease("G2", "0.2s");
                     displayResult('error', 'KHÔNG TÌM THẤY!', 'Mã không hợp lệ hoặc không có trong danh sách ưu đãi.');
-                    showScanAgainButton(); // Thay thế setTimeout
+                    showScanAgainButton();
                 }
             } catch (error) {
                 errorSound.triggerAttackRelease("G2", "0.2s");
@@ -340,7 +340,7 @@
                     message = 'Đây không phải là mã QR hợp lệ của chương trình.';
                 }
                 displayResult('error', 'LỖI!', message);
-                showScanAgainButton(); // Thay thế setTimeout
+                showScanAgainButton();
             }
         }
 
@@ -367,7 +367,7 @@
                 }
                 displayResult('error', 'SỬ DỤNG THẤT BẠI', message);
             } finally {
-                showScanAgainButton(); // Thay thế setTimeout
+                showScanAgainButton();
             }
         }
 
@@ -380,7 +380,6 @@
         async function startScanning() {
             showUi(UI_STATES.SCANNING);
             try {
-                // Yêu cầu quyền truy cập âm thanh
                 await Tone.start();
                 await html5QrCode.start(
                     { facingMode: "environment" },
@@ -394,7 +393,6 @@
             }
         }
 
-        // NÂNG CẤP: Đăng ký Service Worker cho PWA
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
@@ -410,7 +408,7 @@
         }
 
         function init() {
-            registerServiceWorker(); // Gọi hàm đăng ký PWA
+            registerServiceWorker();
             html5QrCode = new Html5Qrcode("reader");
             DOMElements.scanButton.addEventListener('click', startScanning);
             showUi(UI_STATES.IDLE);
