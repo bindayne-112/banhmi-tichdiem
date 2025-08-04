@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quét Mã Ưu Đãi - Bánh Mì Ông Kòi</title>
     
+    <!-- Thẻ cho PWA -->
+    <meta name="theme-color" content="#fc6806"/>
+    <link rel="manifest" href="manifest.json">
+
     <!-- Thư viện quét mã QR -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <!-- Thư viện âm thanh -->
@@ -66,6 +70,24 @@
             margin-bottom: 20px;
             position: relative;
             display: none; /* Ẩn ban đầu */
+        }
+        /* NÂNG CẤP: Hoạt ảnh đường quét laser */
+        #reader::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            box-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+            animation: scanning-line 2s infinite ease-in-out;
+        }
+        @keyframes scanning-line {
+            0% { top: 5%; }
+            50% { top: 95%; }
+            100% { top: 5%; }
         }
         #reader video {
             width: 100% !important;
@@ -165,6 +187,11 @@
             background-color: #95a5a6;
             color: var(--white-color);
         }
+        .result-actions button.scan-again-btn {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            width: 100%;
+        }
         .result-actions button:disabled {
             opacity: 0.7;
             cursor: not-allowed;
@@ -207,6 +234,19 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // NÂNG CẤP: Sử dụng hằng số để quản lý trạng thái và hành động
+        const UI_STATES = {
+            IDLE: 'idle',
+            SCANNING: 'scanning',
+            PROCESSING: 'processing',
+            RESULT: 'result'
+        };
+
+        const API_ACTIONS = {
+            CHECK_STATUS: 'checkQRCodeStatus',
+            USE_CODE: 'useQRCode'
+        };
+
         const DOMElements = {
             reader: document.getElementById('reader'),
             scanButton: document.getElementById('scan-button'),
@@ -234,10 +274,10 @@
         };
 
         function showUi(state) {
-            DOMElements.scanButton.style.display = (state === 'idle') ? 'inline-block' : 'none';
-            DOMElements.reader.style.display = (state === 'scanning') ? 'block' : 'none';
-            DOMElements.loadingSpinner.style.display = (state === 'processing') ? 'block' : 'none';
-            DOMElements.resultContainer.style.display = (state === 'result') ? 'flex' : 'none';
+            DOMElements.scanButton.style.display = (state === UI_STATES.IDLE) ? 'inline-block' : 'none';
+            DOMElements.reader.style.display = (state === UI_STATES.SCANNING) ? 'block' : 'none';
+            DOMElements.loadingSpinner.style.display = (state === UI_STATES.PROCESSING) ? 'block' : 'none';
+            DOMElements.resultContainer.style.display = (state === UI_STATES.RESULT) ? 'flex' : 'none';
         }
 
         function displayResult(type, title, message, actionsHtml = '') {
@@ -246,18 +286,25 @@
             DOMElements.resultTitle.textContent = title;
             DOMElements.resultMessage.innerHTML = message;
             DOMElements.resultActions.innerHTML = actionsHtml;
-            showUi('result');
+            showUi(UI_STATES.RESULT);
         }
         
+        // NÂNG CẤP: Thêm nút "Quét Lại"
+        function showScanAgainButton() {
+            const actions = `<button id="scan-again-btn" class="scan-again-btn">🔄 Quét Lại</button>`;
+            DOMElements.resultActions.innerHTML = actions;
+            document.getElementById('scan-again-btn').addEventListener('click', resetToIdle);
+        }
+
         async function onScanSuccess(decodedText) {
             if (html5QrCode.isScanning) {
                 await html5QrCode.stop();
             }
-            showUi('processing');
+            showUi(UI_STATES.PROCESSING);
             lastScannedCode = decodedText;
 
             try {
-                const payload = { action: 'checkQRCodeStatus', qrCode: decodedText };
+                const payload = { action: API_ACTIONS.CHECK_STATUS, qrCode: decodedText };
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -280,11 +327,11 @@
                 } else if (statusData.status === 'DUPLICATE') {
                     errorSound.triggerAttackRelease("G2", "0.2s");
                     displayResult('warning', 'MÃ ĐÃ SỬ DỤNG!', `Mã của SĐT <strong>${statusData.phone}</strong> đã được dùng trước đó.`);
-                    setTimeout(resetToIdle, 4000);
+                    showScanAgainButton(); // Thay thế setTimeout
                 } else { // NOT_FOUND
                     errorSound.triggerAttackRelease("G2", "0.2s");
                     displayResult('error', 'KHÔNG TÌM THẤY!', 'Mã không hợp lệ hoặc không có trong danh sách ưu đãi.');
-                    setTimeout(resetToIdle, 4000);
+                    showScanAgainButton(); // Thay thế setTimeout
                 }
             } catch (error) {
                 errorSound.triggerAttackRelease("G2", "0.2s");
@@ -293,14 +340,14 @@
                     message = 'Đây không phải là mã QR hợp lệ của chương trình.';
                 }
                 displayResult('error', 'LỖI!', message);
-                setTimeout(resetToIdle, 4000);
+                showScanAgainButton(); // Thay thế setTimeout
             }
         }
 
         async function handleConfirmUse() {
-            showUi('processing');
+            showUi(UI_STATES.PROCESSING);
             try {
-                const payload = { action: 'useQRCode', qrCode: lastScannedCode };
+                const payload = { action: API_ACTIONS.USE_CODE, qrCode: lastScannedCode };
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -320,19 +367,20 @@
                 }
                 displayResult('error', 'SỬ DỤNG THẤT BẠI', message);
             } finally {
-                setTimeout(resetToIdle, 4000);
+                showScanAgainButton(); // Thay thế setTimeout
             }
         }
 
         function onScanFailure(error) { /* Bỏ qua lỗi này */ }
 
         function resetToIdle() {
-            showUi('idle');
+            showUi(UI_STATES.IDLE);
         }
 
         async function startScanning() {
-            showUi('scanning');
+            showUi(UI_STATES.SCANNING);
             try {
+                // Yêu cầu quyền truy cập âm thanh
                 await Tone.start();
                 await html5QrCode.start(
                     { facingMode: "environment" },
@@ -342,14 +390,30 @@
                 );
             } catch (err) {
                 displayResult('error', 'LỖI CAMERA', 'Không thể truy cập camera. Vui lòng kiểm tra và cấp quyền sử dụng camera cho trình duyệt.');
-                setTimeout(resetToIdle, 4000);
+                showScanAgainButton();
+            }
+        }
+
+        // NÂNG CẤP: Đăng ký Service Worker cho PWA
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        })
+                        .catch(err => {
+                            console.log('ServiceWorker registration failed: ', err);
+                        });
+                });
             }
         }
 
         function init() {
+            registerServiceWorker(); // Gọi hàm đăng ký PWA
             html5QrCode = new Html5Qrcode("reader");
             DOMElements.scanButton.addEventListener('click', startScanning);
-            showUi('idle');
+            showUi(UI_STATES.IDLE);
         }
 
         init();
