@@ -600,19 +600,62 @@
             margin-bottom: 15px;
         }
         
-        /* SECRET CODE TRIGGER */
+        /* ⭐ SECRET CODE TRIGGER - PHIÊN BẢN NÚT HIỆN ĐẠI ⭐ */
         .secret-code-trigger {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: var(--dark-color);
+            margin-top: 25px;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            font-weight: 600;
             display: inline-block;
-            transition: transform 0.2s;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px; /* Bo tròn thành hình viên thuốc */
+            color: var(--white-color);
+            background: linear-gradient(45deg, var(--primary-color), #ff8c00);
+            box-shadow: 0 4px 15px rgba(252, 104, 6, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden; /* Ẩn phần thừa của hiệu ứng lướt qua */
+            animation: modern-pulse 2.5s infinite;
         }
+
+        .secret-code-trigger::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 70%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 100%);
+            transform: skewX(-25deg);
+            animation: shimmer 4s infinite 1s ease-in-out; 
+        }
+
         .secret-code-trigger:hover {
-            transform: scale(1.1);
-            text-decoration: underline;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 7px 20px rgba(252, 104, 6, 0.5);
+            animation-play-state: paused; /* Tạm dừng animation khi hover */
+        }
+         .secret-code-trigger:hover::after {
+            animation-play-state: paused;
+        }
+
+        @keyframes modern-pulse {
+            0% {
+                box-shadow: 0 4px 15px rgba(252, 104, 6, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(252, 104, 6, 0.6);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(252, 104, 6, 0.4);
+            }
+        }
+        
+        @keyframes shimmer {
+            100% {
+                left: 150%;
+            }
         }
 
 
@@ -765,11 +808,8 @@
                 closeAdminBtn: document.getElementById('close-admin-btn'),
             };
             
-            // ⭐ ĐÃ CẬP NHẬT URL APPS SCRIPT MỚI CỦA BẠN
             const API_URL = "https://script.google.com/macros/s/AKfycbwIFiAm-bHP8f83cZZkk3plTaBYKQoC2ulTj_75LlRkOdtunrkWmdYXiDxzv1AHfxxR5g/exec";
             
-            // ⭐ BẢO MẬT: Đã xóa mảng SECRET_CODES khỏi client. Việc kiểm tra sẽ do server thực hiện.
-
             let state = {
                 isPromoPaused: false,
                 adminPassword: null 
@@ -932,7 +972,6 @@
                     } else if (err.message.includes("SAVED_AS_PENDING")) {
                         throw err;
                     } else if (err.message.includes("INVALID_SECRET_CODE")) {
-                        // ⭐ BẢO MẬT: Xử lý lỗi mã không hợp lệ từ server
                         errorMessage = "Mã ưu đãi không hợp lệ.";
                         const codeInput = document.getElementById('secret-code-input');
                         if (codeInput) codeInput.classList.add('error');
@@ -998,10 +1037,10 @@
                         </div>
 
                        <div class="instructions" style="text-align: left; padding: 15px; background-color: #F3F4F6; border-radius: 10px;">
-  <p><strong>1.</strong> Lưu mã QR này về máy để xuất trình sau này.</p>
-  <p><strong>2.</strong> Bạn sẽ nhận được tin nhắn ZALO từ Bánh Mì Ông Kòi kèm hướng dẫn + sử dụng trong thời gian tới.📨 </p>
-  <p><strong style="color: red;">‼️ Lưu ý:</strong> Zalo của bạn cần bật chế độ cho phép người lạ tìm kiếm bằng số điện thoại để nhận được tin nhắn từ Bánh Mì Ông Kòi.</p>
-</div>
+                          <p><strong>1.</strong> Lưu mã QR này về máy để xuất trình sau này.</p>
+                          <p><strong>2.</strong> Bạn sẽ nhận được tin nhắn ZALO từ Bánh Mì Ông Kòi kèm hướng dẫn + sử dụng trong thời gian tới.📨 </p>
+                          <p><strong style="color: red;">‼️ Lưu ý:</strong> Zalo của bạn cần bật chế độ cho phép người lạ tìm kiếm bằng số điện thoại để nhận được tin nhắn từ Bánh Mì Ông Kòi.</p>
+                        </div>
 
                         <p class="follow-us-prompt">Pss... Đừng bỏ lỡ ưu đãi nào khác! Theo dõi chúng mình nào:</p>
                         <a href="https://www.facebook.com/BanhMiOngKoi" target="_blank" class="fb-button">
@@ -1094,14 +1133,10 @@
                 messageArea.style.display = 'none';
                 overlay.classList.add('show');
 
-                // ⭐ BẢO MẬT: Cập nhật hàm để gửi mã lên server kiểm tra
                 const handleSubmit = async () => {
                     const code = codeInput.value.trim().toUpperCase();
                     const phone = phoneInput.value.trim();
                     
-                    // Không kiểm tra mã ở client nữa.
-                    // if (!SECRET_CODES.includes(code)) { ... } // ĐÃ XÓA
-
                     try {
                         const success = await submitData(phone, code);
                          if(success) {
@@ -1110,12 +1145,10 @@
                             startConfetti();
                         }
                     } catch(err) {
-                        // Lỗi SAVED_AS_PENDING vẫn được xử lý như cũ
                         if (err.message.includes("SAVED_AS_PENDING")) {
                             overlay.classList.remove('show');
                             showBaitScreen();
                         }
-                        // Các lỗi khác (INVALID_SECRET_CODE, PHONE_DUPLICATE,...) đã được xử lý trong hàm submitData
                     }
                 };
 
