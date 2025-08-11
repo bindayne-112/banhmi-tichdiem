@@ -372,6 +372,44 @@
             animation: tada 2.5s ease-in-out infinite;
         }
         
+        /* MỚI: Thêm style cho nút tải xuống QR */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(45deg, #27ae60, #2ecc71); /* Màu xanh lá cây */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px -5px rgba(46, 204, 113, 0.5);
+            animation: pulse-green 2.5s infinite;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 6px 20px -5px rgba(46, 204, 113, 0.6);
+            animation-play-state: paused;
+        }
+
+        .download-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        @keyframes pulse-green {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
         @keyframes tada {
             from {
                 transform: scale3d(1, 1, 1);
@@ -731,12 +769,10 @@
     <div class="main-container" id="main-container">
         <div class="card">
             <div id="form-container">
-                <!-- Nội dung sẽ được render bởi JS -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- ADMIN PANEL HTML -->
     <div id="admin-panel">
         <h3>BẢNG ĐIỀU KHIỂN</h3>
         <div class="admin-group">
@@ -746,7 +782,6 @@
         <button id="close-admin-btn">Đóng</button>
     </div>
     
-    <!-- CUSTOM MODALS -->
     <div id="custom-confirm-overlay" class="modal-overlay">
         <div class="modal-content">
             <p id="custom-confirm-msg">Bạn có chắc không?</p>
@@ -777,7 +812,6 @@
         </div>
     </div>
 
-    <!-- MODAL ĐĂNG NHẬP ADMIN MỚI -->
     <div id="admin-login-overlay" class="modal-overlay">
         <div id="admin-login-modal" class="modal-content">
             <p>Xác thực Quản trị viên</p>
@@ -1027,17 +1061,25 @@
                 DOMElements.card.style.padding = "20px";
                 DOMElements.card.style.marginTop = "60px";
                 
+                // MỚI: Cập nhật nội dung HTML của màn hình thành công để thêm nút tải xuống
                 DOMElements.formContainer.innerHTML = `
                     <div class="result-screen">
                         <img src="https://i.postimg.cc/1tv3ZfH0/LOGO-1.png" alt="Logo Bánh Mì Ông Kòi" class="logo" style="margin-top: -75px;"/>
                         <h2>BẠN ĐÃ NHẬN ĐƯỢC ƯU ĐÃI!</h2>
 
-                        <div id="qrcode-container" style="padding: 15px; background: white; border-radius: 10px; display: inline-block; margin-bottom: 20px; border: 2px solid var(--primary-color);">
+                        <div id="qrcode-container" style="padding: 15px; background: white; border-radius: 10px; display: inline-block; margin-bottom: 10px; border: 2px solid var(--primary-color);">
                             <div id="qrcode"></div>
                         </div>
 
+                        <button id="download-qr-btn" class="download-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            <span>Tải Mã QR Về Máy</span>
+                        </button>
+
                        <div class="instructions" style="text-align: left; padding: 15px; background-color: #F3F4F6; border-radius: 10px;">
-                          <p><strong>1.</strong> Lưu mã QR này về máy để xuất trình sau này.</p>
+                          <p><strong>1.</strong> Ấn nút trên để lưu mã QR về máy.</p>
                           <p><strong>2.</strong> Bạn sẽ nhận được tin nhắn ZALO từ Bánh Mì Ông Kòi kèm hướng dẫn + sử dụng trong thời gian tới.📨 </p>
                           <p><strong style="color: red;">‼️ Lưu ý:</strong> Zalo của bạn cần bật chế độ cho phép người lạ tìm kiếm bằng số điện thoại để nhận được tin nhắn từ Bánh Mì Ông Kòi.</p>
                         </div>
@@ -1061,6 +1103,25 @@
                         correctLevel : QRCode.CorrectLevel.H
                     });
                 }
+                
+                // MỚI: Thêm sự kiện click để tải QR code
+                document.getElementById('download-qr-btn').addEventListener('click', function() {
+                    // Tìm phần tử canvas được thư viện QR tạo ra
+                    const qrCanvas = document.querySelector('#qrcode canvas');
+                    if (qrCanvas) {
+                        // Tạo một thẻ link ẩn
+                        const link = document.createElement('a');
+                        // Đặt tên file sẽ được tải về
+                        link.download = `Ma-QR-Ong-Koi-${phone}.png`;
+                        // Chuyển đổi canvas thành ảnh PNG và gán vào href
+                        link.href = qrCanvas.toDataURL('image/png');
+                        // Kích hoạt việc tải xuống
+                        link.click();
+                    } else {
+                        // Thông báo nếu không tìm thấy QR code
+                        alert('Không thể tải mã QR. Vui lòng chụp ảnh màn hình.');
+                    }
+                });
             }
 
             function showBaitScreen() {
