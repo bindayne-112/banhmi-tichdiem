@@ -149,11 +149,10 @@
         submitBtn.disabled = true;
         resultEl.textContent = '';
 
-        const formData = new FormData();
-        formData.append('code', qrCode);
-        formData.append('phone', phone);
+        // SỬA LỖI: Chuyển sang phương thức GET để đảm bảo kết nối thành công
+        const requestUrl = `${API_URL}?code=${encodeURIComponent(qrCode)}&phone=${encodeURIComponent(phone)}`;
         
-        fetch(API_URL, { method: 'POST', body: formData })
+        fetch(requestUrl)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
