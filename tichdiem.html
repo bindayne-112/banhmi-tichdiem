@@ -174,17 +174,18 @@
 
         if (qrCode) { // Chế độ TÍCH ĐIỂM
             try {
-                await fetch(CONFIG.qrApiUrl, {
-                    method: 'POST', mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: qrCode, phone: phone })
-                });
+                // SỬA LỖI: Thay đổi cách gửi yêu cầu để đảm bảo hoạt động
+                const response = await fetch(`${CONFIG.qrApiUrl}?code=${qrCode}&phone=${phone}`);
+                if (!response.ok) {
+                    throw new Error('Yêu cầu tích điểm thất bại. Mã có thể đã được sử dụng.');
+                }
+                
                 resultEl.textContent = 'Tích điểm thành công! Đang cập nhật điểm số của bạn...';
                 resultEl.style.color = 'var(--success-color)';
                 document.getElementById('form-container').style.display = 'none';
                 await fetchAndDisplayPoints(phone);
             } catch (error) {
-                handleError('Có lỗi xảy ra trong quá trình tích điểm.');
+                handleError(error.message || 'Có lỗi xảy ra trong quá trình tích điểm.');
             } finally {
                 toggleLoading(false);
             }
@@ -261,3 +262,4 @@
   </script>
 </body>
 </html>
+
