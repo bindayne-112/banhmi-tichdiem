@@ -67,18 +67,6 @@
 
     #result { margin-top: 15px; font-weight: 600; min-height: 20px; line-height: 1.5; }
     
-    #points-display {
-      margin-top: 20px; padding: 15px; background-color: var(--grey-light);
-      border-radius: 8px; border: 1px solid var(--grey-border); text-align: left;
-    }
-    #points-display h3 { font-size: 16px; color: var(--text-dark); margin-bottom: 12px; text-align: center; }
-    .points-total { font-size: 28px; font-weight: 700; color: var(--secondary-color); }
-    .points-info { margin-bottom: 12px; text-align: center; }
-    
-    .progress-bar-container { background-color: #e0e0e0; border-radius: 30px; width: 100%; height: 12px; overflow: hidden; margin-top: 5px; }
-    .progress-bar { background-color: var(--success-color); height: 100%; width: 0%; border-radius: 30px; transition: width 0.5s ease-in-out; }
-    .progress-text { font-size: 13px; color: var(--text-light); margin-top: 8px; text-align: center; }
-
     .rewards-box {
       margin-top: 25px; padding: 12px 14px; border-radius: 10px; font-size: 14px;
       color: #444; text-align: left; border: 1px dashed var(--primary-color);
@@ -99,25 +87,18 @@
   <div class="container">
     <img src="https://i.postimg.cc/nrVBd9LD/logo.png" class="logo" alt="Logo Ông Kòi" />
 
-    <h2 id="main-title" class="main-title"></h2>
-    <p id="subtitle" class="subtitle"></p>
+    <h2 class="main-title">TÍCH ĐIỂM NHÀ KÒI</h2>
+    <p class="subtitle">Bánh Mì Ông "<strong>KÒI</strong>" – Ăn Vào Nhớ "<strong>HÒI</strong>" Đà Nẵng</p>
 
     <div id="form-container">
         <input type="tel" id="phone" placeholder="Nhập số điện thoại Zalo" />
-        <button id="submitBtn" onclick="handleAction()">
-          <span id="btnText"></span>
+        <button id="submitBtn" onclick="submitData()">
+          <span id="btnText">Tích điểm</span>
           <span id="loadingSpinner" class="loading-spinner" style="display: none;"></span>
         </button>
     </div>
     
     <p id="result"></p>
-
-    <div id="points-display" style="display: none;">
-      <h3>Thành viên: <span id="display-phone"></span></h3>
-      <p class="points-info">Tổng điểm của bạn: <span id="points-total" class="points-total">0</span></p>
-      <div class="progress-bar-container"><div id="progress-bar" class="progress-bar"></div></div>
-      <p id="progress-text" class="progress-text"></p>
-    </div>
 
     <div class="rewards-box">
       <h4>⭐ Chương trình đổi thưởng ⭐</h4>
@@ -128,136 +109,73 @@
   </div>
 
   <script>
-    const CONFIG = {
-      sheetId: "1Kgy0J4utlkLnG2LMrjowwcevU7FUsK9V8bquvDHCYLo",
-      sheetName: "TichDiem_OngKoi",
-      qrApiUrl: "https://script.google.com/macros/s/AKfycbzgrAJB266q718FuMZG6Cnu5pMFsh6XbnlGD8VTt1pQ4pIfftGcCdyBkoKlxyAvRPxUzw/exec"
-    };
-    
-    const REWARDS = [
-      { points: 100, name: "1 Ly nước miễn phí" },
-      { points: 200, name: "1 Bánh mì miễn phí" },
-      { points: 300, name: "1 Combo (Bánh mì + Nước)" }
-    ];
-
+    const API_URL = "https://script.google.com/macros/s/AKfycbzgrAJB266q718FuMZG6Cnu5pMFsh6XbnlGD8VTt1pQ4pIfftGcCdyBkoKlxyAvRPxUzw/exec";
     let qrCode = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener("DOMContentLoaded", function() {
         const urlParams = new URLSearchParams(window.location.search);
         qrCode = urlParams.get('tich');
-
-        // Thay đổi giao diện tùy thuộc vào việc có mã QR hay không
-        if (qrCode) {
-            document.getElementById('main-title').textContent = 'XÁC NHẬN TÍCH ĐIỂM';
-            document.getElementById('subtitle').textContent = 'Vui lòng nhập số điện thoại của bạn để nhận 10 điểm thưởng.';
-            document.getElementById('btnText').textContent = 'Xác nhận';
-        } else {
-            document.getElementById('main-title').textContent = 'TRA CỨU ĐIỂM THƯỞNG';
-            document.getElementById('subtitle').textContent = 'Nhập số điện thoại để xem điểm và các phần thưởng của bạn.';
-            document.getElementById('btnText').textContent = 'Tra cứu';
+        if (!qrCode) {
+            document.getElementById('form-container').style.display = 'none';
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = 'Lỗi: Mã QR không hợp lệ hoặc đã hết hạn.';
+            resultEl.style.color = 'var(--error-color)';
         }
     });
 
-    async function handleAction() {
+    function submitData() {
         const phoneInput = document.getElementById('phone');
-        const phone = phoneInput.value.trim();
         const resultEl = document.getElementById('result');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        const phone = phoneInput.value.trim();
+
+        if (!qrCode) {
+            resultEl.textContent = 'Lỗi: Không tìm thấy mã QR.';
+            resultEl.style.color = 'var(--error-color)';
+            return;
+        }
 
         if (phone === '' || !/^\d{10}$/.test(phone)) {
             resultEl.textContent = 'Vui lòng nhập SĐT hợp lệ (10 số).';
             resultEl.style.color = 'var(--error-color)';
-            document.getElementById('points-display').style.display = 'none';
             return;
         }
+        
+        btnText.style.display = 'none';
+        loadingSpinner.style.display = 'block';
+        submitBtn.disabled = true;
+        resultEl.textContent = '';
 
-        toggleLoading(true);
-
-        if (qrCode) { // Chế độ TÍCH ĐIỂM
-            try {
-                // SỬA LỖI: Thay đổi cách gửi yêu cầu để đảm bảo hoạt động
-                const response = await fetch(`${CONFIG.qrApiUrl}?code=${qrCode}&phone=${phone}`);
-                if (!response.ok) {
-                    throw new Error('Yêu cầu tích điểm thất bại. Mã có thể đã được sử dụng.');
+        const formData = new FormData();
+        formData.append('code', qrCode);
+        formData.append('phone', phone);
+        
+        fetch(API_URL, { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    resultEl.textContent = 'Tích điểm thành công!';
+                    resultEl.style.color = 'var(--success-color)';
+                    document.getElementById('form-container').style.display = 'none';
+                } else {
+                    resultEl.textContent = data.message || 'Có lỗi xảy ra.';
+                    resultEl.style.color = 'var(--error-color)';
+                    btnText.style.display = 'inline';
+                    loadingSpinner.style.display = 'none';
+                    submitBtn.disabled = false;
                 }
-                
-                resultEl.textContent = 'Tích điểm thành công! Đang cập nhật điểm số của bạn...';
-                resultEl.style.color = 'var(--success-color)';
-                document.getElementById('form-container').style.display = 'none';
-                await fetchAndDisplayPoints(phone);
-            } catch (error) {
-                handleError(error.message || 'Có lỗi xảy ra trong quá trình tích điểm.');
-            } finally {
-                toggleLoading(false);
-            }
-        } else { // Chế độ TRA CỨU
-            await fetchAndDisplayPoints(phone);
-            toggleLoading(false);
-        }
-    }
-
-    async function fetchAndDisplayPoints(phone) {
-        const resultEl = document.getElementById('result');
-        try {
-            const res = await fetch(`https://opensheet.elk.sh/${CONFIG.sheetId}/${CONFIG.sheetName}?${new Date().getTime()}`);
-            if (!res.ok) throw new Error('Không thể kết nối đến máy chủ.');
-            
-            const allData = await res.json();
-            const userHistory = allData.filter(row => ("0" + (row["SỐ ĐIỆN THOẠI"]?.toString().trim() || "")).slice(-10) === phone);
-            const totalPoints = userHistory.length * 10;
-
-            updatePointsUI(phone, totalPoints);
-            if (!qrCode) { // Chỉ hiển thị nếu đang ở chế độ tra cứu
-                 resultEl.textContent = 'Tra cứu thành công!';
-                 resultEl.style.color = 'var(--success-color)';
-            }
-        } catch (error) {
-            handleError('Không thể tải dữ liệu điểm.');
-        }
-    }
-
-    function updatePointsUI(phone, totalPoints) {
-      const pointsDisplay = document.getElementById('points-display');
-      document.getElementById('display-phone').textContent = phone;
-      document.getElementById('points-total').textContent = totalPoints;
-
-      let nextReward = null;
-      let prevTierPoints = 0;
-      for (const reward of REWARDS) {
-        if (totalPoints < reward.points) { nextReward = reward; break; }
-        prevTierPoints = reward.points;
-      }
-
-      const progressBar = document.getElementById('progress-bar');
-      const progressText = document.getElementById('progress-text');
-
-      if (nextReward) {
-        const pointsInTier = totalPoints - prevTierPoints;
-        const pointsNeeded = nextReward.points - prevTierPoints;
-        const progressPercent = (pointsInTier / pointsNeeded) * 100;
-        progressBar.style.width = `${progressPercent}%`;
-        progressText.innerHTML = `Còn <strong>${nextReward.points - totalPoints}</strong> điểm nữa để nhận <strong>${nextReward.name}</strong>!`;
-      } else {
-        progressBar.style.width = '100%';
-        progressText.innerHTML = `🎉 Chúc mừng! Bạn đã đạt mốc điểm cao nhất!`;
-      }
-      pointsDisplay.style.display = 'block';
-    }
-    
-    function toggleLoading(isLoading) {
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        btnText.style.display = isLoading ? 'none' : 'inline';
-        loadingSpinner.style.display = isLoading ? 'block' : 'none';
-        submitBtn.disabled = isLoading;
-        document.getElementById('result').textContent = '';
-    }
-
-    function handleError(message) {
-        const resultEl = document.getElementById('result');
-        resultEl.textContent = message;
-        resultEl.style.color = 'var(--error-color)';
-        console.error("Lỗi:", message);
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                resultEl.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                resultEl.style.color = 'var(--error-color)';
+                btnText.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
+                submitBtn.disabled = false;
+            });
     }
   </script>
 </body>
